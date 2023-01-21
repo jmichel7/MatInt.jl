@@ -4,9 +4,10 @@ matrices,  the Diaconis-Graham  normal form  for sets  of generators  of an
 abelian  group,  and  a  few  functions to  work  with integral matrices as
 lattices.
 
-Most  of the code is ported from `GAP4`; the code for `NormalFormIntMat` is
-still  horrible  (unreadable)  like  the  original one. The Diaconis-Graham
-normal form is ported from `GAP3/Chevie`.
+Most  of the  code is  ported from  `GAP4`, authored  by A.  Storjohann, R.
+Wainwright, F. Gähler and D. Holt; the code for `NormalFormIntMat` is still
+hard  to read  like the  original one.  The Diaconis-Graham  normal form is
+ported from `GAP3/Chevie`.
 
 The  best way to make sure  of the validity of the  results is to work with
 matrices of `SaferIntegers`, which error in case of overflow. Then redo the
@@ -27,6 +28,7 @@ export complementInt, lnullspaceInt, solutionmatInt, smith, smith_transforms,
   diaconis_graham, baseInt, intersect_rowspaceInt
 
 using LinearAlgebra: I, dot
+using StaticArrays
 
 "`prime_part(N,a)`  largest factor of `N` prime to `a`"
 function prime_part(N, a)
@@ -85,7 +87,7 @@ julia> MatInt.Gcdex(0,0)
 (gcd = 0, coeff = [1 0; 0 1])
 ```
 """
-function Gcdex( m, n )
+function Gcdex(m::Integer, n::Integer)
   if 0<=m  f=m; fm=1
   else f=-m; fm=-1 end
   g=0<=n ? n : -n
@@ -99,7 +101,8 @@ function Gcdex( m, n )
     f=h
     fm=hm
   end
-  (gcd=f, coeff= n==0 ? [fm 0; gm 1] : [fm div(f-fm*m,n); gm div(-gm*m,n)])
+  (gcd=f, coeff= n==0 ? MArray{Tuple{2,2}}(fm,gm,0,1) : 
+    MArray{Tuple{2,2}}(fm,gm,div(f-fm*m,n),div(-gm*m,n)))
 end
 
 """
@@ -109,13 +112,14 @@ end
   - `.sign`  the sign of `det(A)`
   - `.rowtrans` such that `rowtrans*A=[e f;0 g]`  (Hermite normal form)
 """
-function bezout(A)
+function bezout(A::AbstractMatrix)
   e=Gcdex(A[1,1],A[2,1])
   @views f,g=e.coeff*A[:,2]
   if iszero(g) return e end
   coeff=e.coeff
   if g<0
-    @views coeff[2,:]=-coeff[2,:]
+    coeff[2,1]=-coeff[2,1]
+    coeff[2,2]=-coeff[2,2]
     g=-g
   end
   @views coeff[1,:].+=-div(f-mod(f,g),g).*coeff[2,:]
@@ -176,7 +180,7 @@ function SNFofREF(R)
     end
     t=min(k, r)
     for i in t-1:-1:si
-      t=mgcdex(A[i], T[i,k], (T[i+1],T[k]))[1]
+      t=mgcdex(A[i], T[i,k], (T[i+1,k],))[1]
       if t!=0
         T[i,:].+=(@view T[i+1,:]).*t
         T[i,:].=mod.((@view T[i,:]), A[i])
@@ -381,7 +385,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false, ROWT
     i=r+1
     while A[r,c1]*A[i,c2]==A[i,c1]*A[r,c2] i+=1 end
     if i>r+1
-      c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], (A[i],A[c1]))[1]+1
+      c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], (A[i,c1],))[1]+1
       @views A[r+1,:].+=c.*A[i,:]
       if ROWTRANS
         C[r+1,i]+=c
@@ -921,7 +925,7 @@ function DeterminantIntMat(mat)
     i=r+1
     while A[r,c1]*A[i,c2]==A[i,c1]*A[r,c2] i+=1 end
     if i>r+1
-      c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], [A[i,c1]])[1]+1
+      c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], (A[i,c1],))[1]+1
       A[r+1,:]+=A[i,:].* c
     end
     g=bezout(@view A[r:r+1,[c1,c2]])
