@@ -1,7 +1,7 @@
 """
 This  package  provides  the  Smith  and  Hermite normal forms for integral
 matrices,  the Diaconis-Graham  normal form  for sets  of generators  of an
-abelian  group,  and  a  few  function  to  work  with integral matrices as
+abelian  group,  and  a  few  functions to  work  with integral matrices as
 lattices.
 
 Most  of the code is ported from `GAP4`; the code for `NormalFormIntMat` is
@@ -9,11 +9,16 @@ still  horrible  (unreadable)  like  the  original one. The Diaconis-Graham
 normal form is ported from `GAP3/Chevie`.
 
 The  best way to make sure  of the validity of the  results is to work with
-matrices of `SaferIntegers` which guarantees against overflows.
+matrices of `SaferIntegers`, which error in case of overflow. Then redo the
+computation with a wider type in case of error.
 
 For  the API, look at the docstrings for `smith, smith_transforms, hermite,
 hermite_transforms,  col_hermite,  col_hermite_transforms, diaconis_graham,
-baseInt, complementInt, lnullspaceInt, solutionmatInt, intersect_rowspaceInt`
+baseInt, complementInt, lnullspaceInt, solutionmatInt,
+intersect_rowspaceInt`. 
+
+We  recall  that  a  *unimodular*  matrix  means an integer matrix which is
+invertible and whose inverse is still an integer matrix.
 """
 module MatInt
 
@@ -64,7 +69,7 @@ end
 `Gcdex(m,n)`
 
 `Gcdex`  returns a  named tuple  with fields  `gcd=gcd(m,n)` and `coeff`, a
-unimodular (invertible integer) 2x2 matrix such that `coeff*[m,n]=[gcd,0]`.
+unimodular 2x2 matrix such that `coeff*[m,n]=[gcd,0]`.
 
 If `m*n!=0`, `abs(coeff[1,1])≤abs(n)/(2*gcd)` and
 `abs(coeff[1,2])≤abs(m)/(2*gcd)`.   If  `m`  and  `n`  are  not  both  zero
@@ -521,10 +526,10 @@ TriangulizedIntegerMatTransform(mat)=NormalFormIntMat(mat;ROWTRANS=true)
 `hermite(m::AbstractMatrix{<:Integer})`
 
 returns  the row Hermite normal  form `H` of `m`,  a row equivalent integer
-upper  triangular form. If a pivot is the  first non-zero entry on a row of
+upper triangular form. If a *pivot* is the first non-zero entry on a row of
 `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and
 entries  above a  pivot are  nonnegative and  smaller than the pivot. There
-exists a unique invertible integer matrix `r` such that `r*m==H`.
+exists a unique unimodular matrix `r` such that `r*m==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -548,10 +553,10 @@ end
 `hermite_transforms(m::AbstractMatrix{<:Integer})`
 
 The  row Hermite  normal form  `H` of  the `m`  is a row equivalent integer
-upper  triangular form. If a pivot is the  first non-zero entry on a row of
+upper triangular form. If a *pivot* is the first non-zero entry on a row of
 `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and
 entries  above a  pivot are  nonnegative and  smaller than the pivot. There
-exists   a  unique  invertible  integer  matrix  `r`  such  that  `r*m==H`.
+exists  a unique  unimodular matrix  `r` such  that `r*m==H`.  The function
 `hermite_transforms`  returns a named tuple with components `.normal=H` and
 `.rowtrans=r`.
 
@@ -579,11 +584,10 @@ end
 `col_hermite(m::AbstractMatrix{<:Integer})`
 
 returns  the column Hermite  normal form `H`  of the integer  matrix `m`, a
-column  equivalent lower triangular form. If  a pivot is the first non-zero
+column equivalent lower triangular form. If a *pivot* is the first non-zero
 entry on a column of `H` (the quadrant above right a pivot is zero), pivots
 are  positive and entries left of a  pivot are nonnegative and smaller than
-the  pivot. There exists  a unique invertible  integer matrix `c` such that
-`m*c==H`.
+the pivot. There exists a unique unimodular matrix `c` such that `m*c==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -607,12 +611,12 @@ end
 `col_hermite_transforms(m::AbstractMatrix{<:Integer})`
 
 The  column Hermite normal form  `H` of the integer  matrix `m` is a column
-equivalent lower triangular form. If a pivot is the first non-zero entry on
-a  column of  `H` (the  quadrant above  right a  pivot is zero), pivots are
+equivalent  lower triangular form. If a *pivot* is the first non-zero entry
+on  a column of `H` (the quadrant above  right a pivot is zero), pivots are
 positive  and entries left of a pivot  are nonnegative and smaller than the
-pivot.  There  exists  a  unique  invertible  integer  matrix `c` such that
-`m*c==H`.  The function returns  a named tuple  with components `.normal=H`
-and `.coltrans=c`.
+pivot.  There exists a unique unimodular matrix `c` such that `m*c==H`. The
+function  `col_hermite_transforms`  returns  a  named tuple with components
+`.normal=H` and `.coltrans=c`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -662,8 +666,9 @@ smith(mat::AbstractMatrix{<:Integer})=NormalFormIntMat(mat,TRIANG=true)[:normal]
 
 The  Smith normal form of `m` is  the unique equivalent diagonal matrix `S`
 such  that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for  `i≤j`. There exist unimodular integer
-matrices  `c, r` such that `r*m*c==S`.  This function returns a named tuple
-with `.normal=S`, `.rowtrans=r` and `.coltrans=c`.
+matrices  `c,  r`  such  that  `r*m*c==S`.  The function `smith_transforms`
+returns  a  named  tuple  with  components  `.normal=S`,  `.rowtrans=r` and
+`.coltrans=c`.
 
 ```julia-repl
 julia> m=[1 15 28 7;4 5 6 7;7 8 9 7]
@@ -741,30 +746,30 @@ end
 """
 `complementInt(full::Matrix{<:Integer}, sub::Matrix{<:Integer})`
 
-Let  `M`  be  the  integral  row  space  of `full` and let `S`, an integral
-subspace of `M`, be the integral row space of `sub`. This function computes
-a  free basis for `M` that extends `S`, that is, if the dimension of `S` is
-`n`  it determines a basis  `B={b₁,…,bₘ}` for `M`, as  well as `n` integers
-`xᵢ` such that the `n` vectors `sᵢ:=xᵢ⋅bᵢ` form a basis for `S`.
+`complementInt(sub::Matrix{<:Integer})`
 
-It returns a named tuple with the following components:
-  - `complement` a matrix whose lines are `bₙ₊₁,…,bₘ`.
-  - `sub` a matrix whose lines are the `sᵢ` (a basis for `S`).
+Let `M` be the integral row space of `full` and let `S` be the integral row
+space   of  `sub`,  which  should  be  a  subspace  of  `M`.  The  function
+`complementInt` computes a free basis for `M` that extends `S`, that is, if
+the dimension of `S` is `n` it determines a basis `B={b₁,…,bₘ}` for `M`, as
+well as `n` integers `x₁,…,xₙ` such that the `n` vectors `sᵢ:=xᵢ⋅bᵢ` form a
+basis  for `S`. If only one argument is  given, `full` is assumed to be the
+identity matrix of size `size(sub,2)`.
+
+The  function  `complementInt`  returns  a  named  tuple with the following
+components:
+
+  - `complement` a matrix whose rows are `bₙ₊₁,…,bₘ`.
+  - `sub` a matrix whose rows are the `sᵢ` (a basis for `S`).
   - `moduli` the factors `xᵢ`.
 
 ```julia-repl
-julia> m=one(zeros(Int,3,3))
-3×3 Matrix{Int64}:
- 1  0  0
- 0  1  0
- 0  0  1
-
 julia> n=[1 2 3;4 5 6]
 2×3 Matrix{Int64}:
  1  2  3
  4  5  6
 
-julia> complementInt(m,n)
+julia> complementInt(n)
 (complement = [0 0 1], sub = [1 2 3; 0 3 6], moduli = [1, 3])
 ```
 """
@@ -781,6 +786,9 @@ function complementInt(full::Matrix{<:Integer}, sub::Matrix{<:Integer})
   (complement=baseInt(M[1+r.rank:end,:]), sub=r.rowtrans*T*F, 
    moduli=map(i->r.normal[i,i],1:r.rank))
 end
+
+complementInt(sub::Matrix{<:Integer})=complementInt(one(zeros(eltype(sub),
+   size(sub,2),size(sub,2))),sub)
 
 """
 `lnullspaceInt(m::Matrix{<:Integer})
@@ -849,10 +857,12 @@ function solutionmatInt(mat, v)
 end
     
 """
-This  function returns  a Tuple of length  two, its  first entry  being the
-result  of a call  to `solutionmatInt` with  same arguments, the second the
-result of `lnullspaceInt` applied to the matrix `mat`. The calculation is
-performed faster than if two separate calls are used.
+`SolutionNullspaceIntMat(mat, v)`
+
+returns   a  Tuple  of   length  two,  with   first  entry  the  result  of
+`solutionmatInt(mat,v)`, and last entry the result of `lnullspaceInt(mat)`.
+The calculation is performed faster than if two separate calls are used.
+
 ```julia_repl
 julia> mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
 julia> MatInt.SolutionNullspaceIntMat(mat,[95,115,182])
@@ -953,15 +963,15 @@ graph  of generating sets  of an abelian  group", Colloq. Math., 80:31--38,
 `A=ℤ/moduli[1]×…×ℤ/moduli[n]`, where `n=length(moduli)`.
 
 `m`  should have `n` columns, and each  line, with the `i`-th element taken
-`mod  moduli[i]`, represents  an element  of `A`;  the set  of lines of `m`
+`mod  moduli[i]`, represents  an element  of `A`;  the set  of rows  of `m`
 should generate `A`.
 
-The  function returns 'nothing'  if the lines  of `m` do  not generate `A`.
+The  function returns  'nothing' if  the rows  of `m`  do not generate `A`.
 Otherwise it returns a named tuple `r` with fields
 
 `r.normal`:  the Diaconis-Graham normal form, a matrix of same shape as `m`
-where  either the first `n` lines are the identity matrix and the remaining
-lines  are `0`,  or `length(m)=n`  and `.normal`  differs from the identity
+where  either the first `n` rows are  the identity matrix and the remaining
+rows  are `0`,  or `length(m)=n`  and `.normal`  differs from  the identity
 matrix only in the entry `.normal[n,n]`, which is prime to `moduli[n]`.
 
 `r.rowtrans`: unimodular matrix such that `r.normal==mod.(r.rowtrans*m,moduli')`
