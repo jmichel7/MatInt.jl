@@ -12,7 +12,7 @@ The  best way to  make sure of  the validity of  the result is to work with matr
 For  the API, look at the docstrings for `smith, smith_transforms, hermite, hermite_transforms,  col_hermite,  col_hermite_transforms, diaconis_graham, baseInt, complementInt, lnullspaceInt, solutionmatInt, intersect_rowspaceInt`
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L1-L15' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L1-L15' class='documenter-source'>source</a><br>
 
 <a id='MatInt.hermite' href='#MatInt.hermite'>#</a>
 **`MatInt.hermite`** &mdash; *Function*.
@@ -38,7 +38,7 @@ julia> hermite(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L518-L540' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L518-L540' class='documenter-source'>source</a><br>
 
 <a id='MatInt.hermite_transforms' href='#MatInt.hermite_transforms'>#</a>
 **`MatInt.hermite_transforms`** &mdash; *Function*.
@@ -64,7 +64,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L545-L569' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L545-L569' class='documenter-source'>source</a><br>
 
 <a id='MatInt.col_hermite' href='#MatInt.col_hermite'>#</a>
 **`MatInt.col_hermite`** &mdash; *Function*.
@@ -90,7 +90,7 @@ julia> col_hermite(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L576-L599' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L576-L599' class='documenter-source'>source</a><br>
 
 <a id='MatInt.col_hermite_transforms' href='#MatInt.col_hermite_transforms'>#</a>
 **`MatInt.col_hermite_transforms`** &mdash; *Function*.
@@ -116,7 +116,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L604-L628' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L604-L628' class='documenter-source'>source</a><br>
 
 <a id='MatInt.smith' href='#MatInt.smith'>#</a>
 **`MatInt.smith`** &mdash; *Function*.
@@ -142,7 +142,7 @@ julia> smith(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L635-L655' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L635-L655' class='documenter-source'>source</a><br>
 
 <a id='MatInt.smith_transforms' href='#MatInt.smith_transforms'>#</a>
 **`MatInt.smith_transforms`** &mdash; *Function*.
@@ -168,7 +168,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L658-L679' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L658-L679' class='documenter-source'>source</a><br>
 
 <a id='MatInt.diaconis_graham' href='#MatInt.diaconis_graham'>#</a>
 **`MatInt.diaconis_graham`** &mdash; *Function*.
@@ -200,7 +200,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L951-L985' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L941-L975' class='documenter-source'>source</a><br>
 
 <a id='MatInt.baseInt' href='#MatInt.baseInt'>#</a>
 **`MatInt.baseInt`** &mdash; *Function*.
@@ -226,7 +226,7 @@ julia> baseInt(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L686-L705' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L686-L705' class='documenter-source'>source</a><br>
 
 <a id='MatInt.complementInt' href='#MatInt.complementInt'>#</a>
 **`MatInt.complementInt`** &mdash; *Function*.
@@ -260,7 +260,7 @@ julia> complementInt(m,n)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L739-L768' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L739-L768' class='documenter-source'>source</a><br>
 
 <a id='MatInt.lnullspaceInt' href='#MatInt.lnullspaceInt'>#</a>
 **`MatInt.lnullspaceInt`** &mdash; *Function*.
@@ -287,7 +287,7 @@ julia> MatInt.lnullspaceInt(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L783-L804' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L783-L804' class='documenter-source'>source</a><br>
 
 <a id='MatInt.intersect_rowspaceInt' href='#MatInt.intersect_rowspaceInt'>#</a>
 **`MatInt.intersect_rowspaceInt`** &mdash; *Function*.
@@ -313,7 +313,7 @@ julia> intersect_rowspaceInt(mat,nat)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L711-L730' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L711-L730' class='documenter-source'>source</a><br>
 
 <a id='MatInt.solutionmatInt' href='#MatInt.solutionmatInt'>#</a>
 **`MatInt.solutionmatInt`** &mdash; *Function*.
@@ -322,7 +322,7 @@ julia> intersect_rowspaceInt(mat,nat)
 
 `solutionmatInt(mat::Matrix{<:Integer}, v::Vector{<:Integer})`
 
-returns  a  vector  `x`  with  integer  entries  that  is a solution of the equation `mat'*x=vec`. It returns `false` if no such vector exists.
+returns  an  integral  vector  `x`  that  is  a  solution  of  the equation `mat'*x=v`. It returns `nothing` if no such vector exists.
 
 ```julia-repl
 julia> mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
@@ -332,14 +332,6 @@ julia> mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
   7   8   9
  10  11  19
   5   7  12
-
-julia> solutionmat(mat,[95,115,182])
-5-element Vector{Rational{Int64}}:
-  47//4
- -17//2
-  67//4
-   0//1
-   0//1
 
 julia> solutionmatInt(mat,[95,115,182])
 5-element Vector{Int64}:
@@ -351,5 +343,5 @@ julia> solutionmatInt(mat,[95,115,182])
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/0c315e33332b46ee30621b432511d78c6ff95ee7/src/MatInt.jl#L810-L841' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L810-L833' class='documenter-source'>source</a><br>
 

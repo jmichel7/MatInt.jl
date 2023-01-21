@@ -1,6 +1,5 @@
 # auto-generated tests from julia-repl docstrings
-using Test, Gapjm
-#include("../tools/Gap4.jl")
+using Test, MatInt
 function mytest(f::String,a::String,b::String)
   println(f," ",a)
   omit=a[end]==';'
@@ -18,7 +17,6 @@ function mytest(f::String,a::String,b::String)
   if a!=b print("exec=$(repr(a[i:end]))\nmanl=$(repr(b[i:end]))\n") end
   a==b
 end
-@testset verbose = true "Gapjm" begin
 @testset "MatInt.jl" begin
 @test mytest("MatInt.jl","MatInt.Gcdex(123,66)","(gcd = 3, coeff = [7 -13; -22 41])")
 @test mytest("MatInt.jl","MatInt.Gcdex(0,-3)","(gcd = 3, coeff = [0 -1; 1 0])")
@@ -57,9 +55,7 @@ end
 @test mytest("MatInt.jl","m=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]","5×3 Matrix{Int64}:\n  1   2   7\n  4   5   6\n  7   8   9\n 10  11  19\n  5   7  12")
 @test mytest("MatInt.jl","MatInt.lnullspaceInt(m)","2×5 Matrix{Int64}:\n 1  18   -9  2  -6\n 0  24  -13  3  -7")
 @test mytest("MatInt.jl","mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]","5×3 Matrix{Int64}:\n  1   2   7\n  4   5   6\n  7   8   9\n 10  11  19\n  5   7  12")
-@test mytest("MatInt.jl","solutionmat(mat,[95,115,182])","5-element Vector{Rational{Int64}}:\n  47//4\n -17//2\n  67//4\n   0//1\n   0//1")
 @test mytest("MatInt.jl","solutionmatInt(mat,[95,115,182])","5-element Vector{Int64}:\n  2285\n -5854\n  4888\n -1299\n     0")
 @test mytest("MatInt.jl","r=diaconis_graham([3 0;4 1],[10,5])","(rowtrans = [-13 10; 4 -3], normal = [1 0; 0 2])")
 @test mytest("MatInt.jl","r.normal==mod.(r.rowtrans*[3 0;4 1],[10,5]')","true")
-end
 end

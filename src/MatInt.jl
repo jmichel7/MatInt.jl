@@ -810,8 +810,8 @@ end
 """
 `solutionmatInt(mat::Matrix{<:Integer}, v::Vector{<:Integer})`
 
-returns  a  vector  `x`  with  integer  entries  that  is a solution of the
-equation `mat'*x=vec`. It returns `false` if no such vector exists.
+returns  an  integral  vector  `x`  that  is  a  solution  of  the equation
+`mat'*x=v`. It returns `nothing` if no such vector exists.
 
 ```julia-repl
 julia> mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
@@ -821,14 +821,6 @@ julia> mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
   7   8   9
  10  11  19
   5   7  12
-
-julia> solutionmat(mat,[95,115,182])
-5-element Vector{Rational{Int64}}:
-  47//4
- -17//2
-  67//4
-   0//1
-   0//1
 
 julia> solutionmatInt(mat,[95,115,182])
 5-element Vector{Int64}:
@@ -841,19 +833,17 @@ julia> solutionmatInt(mat,[95,115,182])
 """
 function solutionmatInt(mat, v)
   if iszero(mat)
-    if iszero(v) return fill(0,length(mat))
-    else return false
+    if iszero(v) return fill(0,size(mat,1))
+    else return
     end
   end
   norm=TriangulizedIntegerMatTransform(mat)
-  t=norm[:rowtrans]
-  rs=norm[:normal][1:norm[:rank],:]
-  M=vcat(rs, transpose(v))
+  M=vcat(norm[:normal][1:norm[:rank],:], transpose(v))
   r=TriangulizedIntegerMatTransform(M)
   if r[:rank]==size(r[:normal],1) || r[:rowtrans][end,end]!=1
-      return false
+      return
   end
-  -transpose(t[1:r[:rank],:])*r[:rowtrans][end,1:r[:rank]]
+  -transpose(norm[:rowtrans][1:r[:rank],:])*r[:rowtrans][end,1:r[:rank]]
 end
     
 """
