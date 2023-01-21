@@ -3,16 +3,16 @@
 
 
 
-Smith and Hermite normal forms for integral matrices, ported from GAP4, and Diaconis-Graham  normal form  for sets  of generators  of an abelian group, ported from GAP3/Chevie.
+This  package  provides  the  Smith  and  Hermite normal forms for integral matrices,  the Diaconis-Graham  normal form  for sets  of generators  of an abelian  group,  and  a  few  function  to  work  with integral matrices as lattices.
 
-The  code ported  from GAP4  for NormalFormIntMat  is horrible (unreadable) like the original one.
+Most  of the code is ported from `GAP4`; the code for `NormalFormIntMat` is still  horrible  (unreadable)  like  the  original one. The Diaconis-Graham normal form is ported from `GAP3/Chevie`.
 
-The  best way to  make sure of  the validity of  the result is to work with matrices of SaferIntegers.
+The  best way to make sure  of the validity of the  results is to work with matrices of `SaferIntegers` which guarantees against overflows.
 
 For  the API, look at the docstrings for `smith, smith_transforms, hermite, hermite_transforms,  col_hermite,  col_hermite_transforms, diaconis_graham, baseInt, complementInt, lnullspaceInt, solutionmatInt, intersect_rowspaceInt`
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L1-L15' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L1-L17' class='documenter-source'>source</a><br>
 
 <a id='MatInt.hermite' href='#MatInt.hermite'>#</a>
 **`MatInt.hermite`** &mdash; *Function*.
@@ -21,7 +21,7 @@ For  the API, look at the docstrings for `smith, smith_transforms, hermite, herm
 
 `hermite(m::AbstractMatrix{<:Integer})`
 
-returns  the row Hermite normal  form `H` of `m`,  a row equivalent integer upper  triangular form. If a pivot is the  first non-zero entry on a row of `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and entries  above a  pivot are  nonnegative and  smaller than the pivot. There exists a unique invertible integer matrix `r` such that `rm==H`.
+returns  the row Hermite normal  form `H` of `m`,  a row equivalent integer upper  triangular form. If a pivot is the  first non-zero entry on a row of `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and entries  above a  pivot are  nonnegative and  smaller than the pivot. There exists a unique invertible integer matrix `r` such that `r*m==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -38,7 +38,7 @@ julia> hermite(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L518-L540' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L520-L542' class='documenter-source'>source</a><br>
 
 <a id='MatInt.hermite_transforms' href='#MatInt.hermite_transforms'>#</a>
 **`MatInt.hermite_transforms`** &mdash; *Function*.
@@ -47,7 +47,7 @@ julia> hermite(m)
 
 `hermite_transforms(m::AbstractMatrix{<:Integer})`
 
-The  row Hermite  normal form  `H` of  the `m`  is a row equivalent integer upper  triangular form. If a pivot is the  first non-zero entry on a row of `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and entries  above a  pivot are  nonnegative and  smaller than the pivot. There exists   a  unique  invertible  integer   matrix  `r`  such  that  `rm==H`. `hermite_transforms`  returns  a  tuple  with  components  `.normal=H`  and `.rowtrans=r`.
+The  row Hermite  normal form  `H` of  the `m`  is a row equivalent integer upper  triangular form. If a pivot is the  first non-zero entry on a row of `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and entries  above a  pivot are  nonnegative and  smaller than the pivot. There exists   a  unique  invertible  integer  matrix  `r`  such  that  `r*m==H`. `hermite_transforms`  returns a named tuple with components `.normal=H` and `.rowtrans=r`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -64,7 +64,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L545-L569' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L547-L571' class='documenter-source'>source</a><br>
 
 <a id='MatInt.col_hermite' href='#MatInt.col_hermite'>#</a>
 **`MatInt.col_hermite`** &mdash; *Function*.
@@ -73,7 +73,7 @@ true
 
 `col_hermite(m::AbstractMatrix{<:Integer})`
 
-returns  the column Hermite  normal form `H`  of the integer  matrix `m`, a column  equivalent lower triangular form. If  a pivot is the first non-zero entry on a column of `H` (the quadrant above right a pivot is zero), pivots are  positive and entries left of a  pivot are nonnegative and smaller than the  pivot. There exists  a unique invertible  integer matrix `Q` such that `mQ==H`.
+returns  the column Hermite  normal form `H`  of the integer  matrix `m`, a column  equivalent lower triangular form. If  a pivot is the first non-zero entry on a column of `H` (the quadrant above right a pivot is zero), pivots are  positive and entries left of a  pivot are nonnegative and smaller than the  pivot. There exists  a unique invertible  integer matrix `c` such that `m*c==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -90,7 +90,7 @@ julia> col_hermite(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L576-L599' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L578-L601' class='documenter-source'>source</a><br>
 
 <a id='MatInt.col_hermite_transforms' href='#MatInt.col_hermite_transforms'>#</a>
 **`MatInt.col_hermite_transforms`** &mdash; *Function*.
@@ -99,7 +99,7 @@ julia> col_hermite(m)
 
 `col_hermite_transforms(m::AbstractMatrix{<:Integer})`
 
-The  column Hermite normal form  `H` of the integer  matrix `m` is a column equivalent lower triangular form. If a pivot is the first non-zero entry on a  column of  `H` (the  quadrant above  right a  pivot is zero), pivots are positive  and entries left of a pivot  are nonnegative and smaller than the pivot.  There  exists  a  unique  invertible  integer  matrix `Q` such that `mQ==H`. The function returns a named tuple with components `.normal=H` and `.rowtrans=Q`.
+The  column Hermite normal form  `H` of the integer  matrix `m` is a column equivalent lower triangular form. If a pivot is the first non-zero entry on a  column of  `H` (the  quadrant above  right a  pivot is zero), pivots are positive  and entries left of a pivot  are nonnegative and smaller than the pivot.  There  exists  a  unique  invertible  integer  matrix `c` such that `m*c==H`.  The function returns  a named tuple  with components `.normal=H` and `.coltrans=c`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -116,7 +116,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L604-L628' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L606-L630' class='documenter-source'>source</a><br>
 
 <a id='MatInt.smith' href='#MatInt.smith'>#</a>
 **`MatInt.smith`** &mdash; *Function*.
@@ -125,7 +125,7 @@ true
 
 `smith(m::AbstractMatrix{<:Integer})`
 
-computes  the Smith normal form  `S` of `m`, the  unique equivalent (in the sense  that  there  exist  unimodular  integer  matrices  `P,  Q` such that `Q*m*P==S`) diagonal matrix such that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for `i≤j`.
+computes  the Smith normal form  `S` of `m`, the  unique equivalent (in the sense  that  there  exist  unimodular  integer  matrices  `r,  c` such that `r*m*c==S`) diagonal matrix such that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for `i≤j`.
 
 ```julia-repl
 julia> m=[1 15 28 7;4 5 6 7;7 8 9 7]
@@ -142,7 +142,7 @@ julia> smith(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L635-L655' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L637-L657' class='documenter-source'>source</a><br>
 
 <a id='MatInt.smith_transforms' href='#MatInt.smith_transforms'>#</a>
 **`MatInt.smith_transforms`** &mdash; *Function*.
@@ -151,7 +151,7 @@ julia> smith(m)
 
 `smith_transforms(m::AbstractMatrix{<:Integer})`
 
-The  Smith normal form of `m` is  the unique equivalent diagonal matrix `S` such  that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for  `i≤j`. There exist unimodular integer matrices  `P, Q` such that `Q*m*P==S`.  This function returns a named tuple with `.normal=S`, `.rowtrans=Q` and `.coltrans=P`.
+The  Smith normal form of `m` is  the unique equivalent diagonal matrix `S` such  that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for  `i≤j`. There exist unimodular integer matrices  `c, r` such that `r*m*c==S`.  This function returns a named tuple with `.normal=S`, `.rowtrans=r` and `.coltrans=c`.
 
 ```julia-repl
 julia> m=[1 15 28 7;4 5 6 7;7 8 9 7]
@@ -168,7 +168,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L658-L679' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L660-L681' class='documenter-source'>source</a><br>
 
 <a id='MatInt.diaconis_graham' href='#MatInt.diaconis_graham'>#</a>
 **`MatInt.diaconis_graham`** &mdash; *Function*.
@@ -177,7 +177,9 @@ true
 
 `diaconis_graham(m::Matrix{<:Integer}, moduli::Vector{<:Integer})`
 
-returns the normal  form defined  in [Diaconis-Graham1999](biblio.htm#dg99) for  the set of generators  defined by `m` of  the abelian group defined by `moduli`.
+returns the normal form defined for the set of generators defined by `m` of the  abelian group defined by `moduli`. in P. Diaconis and R. Graham., "The graph  of generating sets  of an abelian  group", Colloq. Math., 80:31–38,
+
+1999. 
 
 `moduli`  should  have  positive  entries  such  that `moduli[i+1]` divides `moduli[i]` for all `i`, representing the abelian group `A=ℤ/moduli[1]×…×ℤ/moduli[n]`, where `n=length(moduli)`.
 
@@ -200,7 +202,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L941-L975' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L943-L978' class='documenter-source'>source</a><br>
 
 <a id='MatInt.baseInt' href='#MatInt.baseInt'>#</a>
 **`MatInt.baseInt`** &mdash; *Function*.
@@ -209,7 +211,7 @@ true
 
 `baseInt(m::Matrix{<:Integer})`
 
-returns  a list of vectors that forms a  basis of the integral row space of `m`, i.e. of the set of integral linear combinations of the rows of `m`.
+returns a matrix whose rows forms a basis of the integral row space of `m`, i.e. of the set of integral linear combinations of the rows of `m`.
 
 ```julia-repl
 julia> m=[1 2 7;4 5 6;10 11 19]
@@ -226,7 +228,7 @@ julia> baseInt(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L686-L705' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L688-L707' class='documenter-source'>source</a><br>
 
 <a id='MatInt.complementInt' href='#MatInt.complementInt'>#</a>
 **`MatInt.complementInt`** &mdash; *Function*.
@@ -235,7 +237,7 @@ julia> baseInt(m)
 
 `complementInt(full::Matrix{<:Integer}, sub::Matrix{<:Integer})`
 
-Let  `M` be the integral row module of  `full` and let `S`, a submodule of `M`,  be the integral row  module of `sub`. This  function computes a free basis for `M` that extends `S`, that is, if the dimension of `S` is `n` it determines  a basis  `B={b₁,…,bₘ}` for  `M`, as  well as `n` integers `xᵢ` such that the `n` vectors `sᵢ:=xᵢ⋅bᵢ` form a basis for `S`.
+Let  `M`  be  the  integral  row  space  of `full` and let `S`, an integral subspace of `M`, be the integral row space of `sub`. This function computes a  free basis for `M` that extends `S`, that is, if the dimension of `S` is `n`  it determines a basis  `B={b₁,…,bₘ}` for `M`, as  well as `n` integers `xᵢ` such that the `n` vectors `sᵢ:=xᵢ⋅bᵢ` form a basis for `S`.
 
 It returns a named tuple with the following components:
 
@@ -260,7 +262,7 @@ julia> complementInt(m,n)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L739-L768' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L741-L770' class='documenter-source'>source</a><br>
 
 <a id='MatInt.lnullspaceInt' href='#MatInt.lnullspaceInt'>#</a>
 **`MatInt.lnullspaceInt`** &mdash; *Function*.
@@ -269,7 +271,7 @@ julia> complementInt(m,n)
 
 `lnullspaceInt(m::Matrix{<:Integer})
 
-returns  a matrix whose rows form a  basis of the integral lnullspace of `m`,  that is of elements  of the left nullspace  of `m` that have integral entries.
+returns a matrix whose rows form a basis of the integral lnullspace of `m`, that  is  of  elements  of  the  left  nullspace  of `m` that have integral entries.
 
 ```julia-repl
 julia> m=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
@@ -287,7 +289,7 @@ julia> MatInt.lnullspaceInt(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L783-L804' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L785-L806' class='documenter-source'>source</a><br>
 
 <a id='MatInt.intersect_rowspaceInt' href='#MatInt.intersect_rowspaceInt'>#</a>
 **`MatInt.intersect_rowspaceInt`** &mdash; *Function*.
@@ -313,7 +315,7 @@ julia> intersect_rowspaceInt(mat,nat)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L711-L730' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L713-L732' class='documenter-source'>source</a><br>
 
 <a id='MatInt.solutionmatInt' href='#MatInt.solutionmatInt'>#</a>
 **`MatInt.solutionmatInt`** &mdash; *Function*.
@@ -343,5 +345,5 @@ julia> solutionmatInt(mat,[95,115,182])
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/76288cb3598cb996e5a49c5b3d9bb2fdf6af380f/src/MatInt.jl#L810-L833' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f39abb634da6e8527624113ac4d30d6b565e4755/src/MatInt.jl#L812-L835' class='documenter-source'>source</a><br>
 
