@@ -27,8 +27,7 @@ export complementInt, lnullspaceInt, solutionmatInt, smith, smith_transforms,
   hermite, hermite_transforms, col_hermite, col_hermite_transforms, 
   diaconis_graham, baseInt, intersect_rowspaceInt
 
-using LinearAlgebra: I, dot
-using StaticArrays
+using LinearAlgebra: LinearAlgebra, I, dot
 
 "`prime_part(N,a)`  largest factor of `N` prime to `a`"
 function prime_part(N, a)
@@ -101,8 +100,7 @@ function Gcdex(m::Integer, n::Integer)
     f=h
     fm=hm
   end
-  (gcd=f, coeff= n==0 ? MArray{Tuple{2,2}}(fm,gm,0,1) : 
-    MArray{Tuple{2,2}}(fm,gm,div(f-fm*m,n),div(-gm*m,n)))
+  (gcd=f, coeff= n==0 ? [fm 0;gm 1] : [fm div(f-fm*m,n);gm div(-gm*m,n)])
 end
 
 """
@@ -127,13 +125,13 @@ function bezout(A::AbstractMatrix)
 end
 
 """
-`mgcdex(N,a,v)` returns `c[1],c[2],…c[k]` such that
-`gcd(N,a+c[1]*v[1]+…+c[n]*v[k])==gcd(N,a,v[1],v[2],…,v[k])`
+`mgcdex(N::Integer,a::Integer,v)`   returns  `M`  of  same  length  as  `v`
+(usually a tuple of integers) such that `gcd(N,a+sum(M.*v))==gcd(N,a,v...)`
 """
-function mgcdex(N, a, v)
+function mgcdex(N::Integer, a::Integer, v)
   l=length(v)
   h=N
-  M=zeros(eltype(v),l)
+  M=Vector{eltype(v)}(undef,l)
   for i in 1:l
     g=h
     h=gcd(g, v[i])
@@ -176,14 +174,14 @@ function SNFofREF(R)
   for k in 1:m
     if k<=r
       d*=abs(T[k,k])
-      T[k,:].=mod.((@view T[k,:]), 2d)
+      @views T[k,:].=mod.(T[k,:], 2d)
     end
     t=min(k, r)
     for i in t-1:-1:si
       t=mgcdex(A[i], T[i,k], (T[i+1,k],))[1]
       if t!=0
-        T[i,:].+=(@view T[i+1,:]).*t
-        T[i,:].=mod.((@view T[i,:]), A[i])
+        @views T[i,:].+=T[i+1,:].*t
+        @views T[i,:].=mod.(T[i,:], A[i])
       end
     end
     for i in si:min(k-1, r)
@@ -193,22 +191,22 @@ function SNFofREF(R)
         b=div(A[i], g[1])
         A[i]=g[1]
         for ii in i+1:min(k-1,r)
-          T[ii,:].+=mod.((@view T[i,:])*(-g[3]*div(T[ii,k],A[i])),A[ii])
+          @views T[ii,:].+=mod.(T[i,:]*(-g[3]*div(T[ii,k],A[i])),A[ii])
           T[ii,k]*=b
-          T[ii,:].=mod.((@view T[ii,:]),A[ii])
+          @views T[ii,:].=mod.(T[ii,:],A[ii])
         end
         if k<=r
           t=g[3]*div(T[k,k], g[1])
-          T[k,:].+=-t*@view T[i,:]
+          @views T[k,:].+=-t*T[i,:]
           T[k,k]*=b
         end
-        T[i,:].=mod.(T[i,:], A[i])
+        @views T[i,:].=mod.(T[i,:], A[i])
         if A[i]==1 si=i+1 end
       end
     end
     if k<=r
       A[k]=abs(T[k,k])
-      T[k,:].=mod.((@view T[k,:]), A[k])
+      @views T[k,:].=mod.(T[k,:], A[k])
     end
   end
   for i in 1:r T[i,i]=A[i] end
@@ -896,47 +894,49 @@ end
 function DeterminantIntMat(mat)
   sig=1
   n=size(mat,1)+2
-  if n<22 return DeterminantMat(mat) end
+  if n<22 return LinearAlgebra.det_bareiss(mat) end
   m=size(mat,2)+2
   if n!=m error("DeterminantIntMat: <mat> must be a square matrix") end
-  A=fill(zero(eltype(mat)),m,n)
-  A[2:end-1,2:end-1]=m
+  A=fill(zero(eltype(mat)),n,n)
+  @views A[2:end-1,2:end-1].=mat
   A[1,1]=1
-  A[n,m]=1
+  A[n,n]=1
   r=0
   c2=1
-  while m>c2
+  while n>c2
     r+=1
     c1=c2
     j=c1+1
-    while j <= m
+    while j<=n
       k=r+1
       while k<=n && A[r,c1]*A[k,j]==A[k,c1]*A[r,j] k+=1 end
       if k<=n
         c2=j
-        j=m
+        j=n
       end
       j+=1
     end
-    c=mgcdex(abs(A[r,c1]), A[r+1,c1], A[r+2:n,c1])
+    c=mgcdex(abs(A[r,c1]), A[r+1,c1], @views A[r+2:n,c1])
     for i in r+2:n
-      if c[i-r-1]!=0 A[r+1,:]+=A[i,:].*c[i-r-1] end
+      if c[i-r-1]!=0
+        @views A[r+1,:]+=A[i,:].*c[i-r-1]
+      end
     end
     i=r+1
     while A[r,c1]*A[i,c2]==A[i,c1]*A[r,c2] i+=1 end
     if i>r+1
       c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], (A[i,c1],))[1]+1
-      A[r+1,:]+=A[i,:].* c
+      @views A[r+1,:]+=A[i,:].* c
     end
     g=bezout(@view A[r:r+1,[c1,c2]])
     sig*=g.sign
     if sig==0 return 0 end
-    A[r:r+1,:]=g.rowtrans*A[r:r+1,:]
+    @views A[r:r+1,:]=g.rowtrans*A[r:r+1,:]
     for i in r+2:n
       q=div(A[i,c1], A[r,c1])
-      A[i,:]-=A[r,:].*q
+      @views A[i,:]-=A[r,:].*q
       q=div(A[i,c2], A[r+1,c2])
-      A[i,:]-=q.*A[r+1,:]
+      @views A[i,:]-=q.*A[r+1,:]
     end
   end
   for i in 2:r+1 sig*=A[i,i] end
