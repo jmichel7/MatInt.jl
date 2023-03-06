@@ -350,9 +350,8 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false, ROWT
           N=T(N)
         else
           c=mgcdex(N, A[r,j], @view A[r+1:n,j])
-          c=dot(c,@view A[r+1:n,j])
-          b=A[r,j]+c
-          a=A[r,c1]+c
+          b=A[r,j]+dot(c,@view A[r+1:n,j])
+          a=A[r,c1]+dot(c,@view A[r+1:n,c1])
         end
         t=mgcdex(N, a, (b,))[1]
         tmp=A[r,c1]+t*A[r,j]
