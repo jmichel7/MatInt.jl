@@ -526,11 +526,12 @@ TriangulizedIntegerMatTransform(mat)=NormalFormIntMat(mat;ROWTRANS=true)
 """
 `hermite(m::AbstractMatrix{<:Integer})`
 
-returns  the row Hermite normal  form `H` of `m`,  a row equivalent integer
-upper triangular form. If a *pivot* is the first non-zero entry on a row of
-`H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and
-entries  above a  pivot are  nonnegative and  smaller than the pivot. There
-exists a unique unimodular matrix `r` such that `r*m==H`.
+returns  the row Hermite normal  form `H` of `m`,  an upper triangular form
+with the same integral rowspace. Further, in this form, if a *pivot* is the
+first  non-zero entry on a  row of `H`, the  quadrant below left a pivot is
+zero,  pivots are  positive and  entries above  a pivot are nonnegative and
+smaller  than the  pivot. There  exists a  (unique if  `m` is of full rank)
+unimodular matrix `r` such that `r*m==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -553,13 +554,13 @@ end
 """
 `hermite_transforms(m::AbstractMatrix{<:Integer})`
 
-The  row Hermite  normal form  `H` of  the `m`  is a row equivalent integer
-upper triangular form. If a *pivot* is the first non-zero entry on a row of
-`H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and
-entries  above a  pivot are  nonnegative and  smaller than the pivot. There
-exists  a unique  unimodular matrix  `r` such  that `r*m==H`.  The function
-`hermite_transforms`  returns a named tuple with components `.normal=H` and
-`.rowtrans=r`.
+The row Hermite normal form `H` of `m` is an upper triangular form with the
+same  integral rowspace. Further, in  this form, if a  *pivot* is the first
+non-zero  entry on a row  of `H`, the quadrant  below left a pivot is zero,
+pivots  are positive and entries above  a pivot are nonnegative and smaller
+than  the pivot. There exists a (unique  if `m` is of full rank) unimodular
+matrix  `r` such that `r*m==H`. The function `hermite_transforms` returns a
+named tuple with components `.normal=H` and `.rowtrans=r`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -694,8 +695,9 @@ end
 """
 `baseInt(m::Matrix{<:Integer})`
 
-returns a matrix whose rows forms a basis of the integral row space of `m`,
-i.e. of the set of integral linear combinations of the rows of `m`.
+returns  a matrix in  Hermite normal form  whose rows forms  a basis of the
+integral  row space of `m`, i.e. of the set of integral linear combinations
+of the rows of `m`.
 
 ```julia-repl
 julia> m=[1 2 7;4 5 6;10 11 19]
