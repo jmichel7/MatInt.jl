@@ -294,6 +294,7 @@ julia> r[:rowtrans]*m*r[:coltrans]
 function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false, ROWTRANS=false, COLTRANS=false)
 # The gap code for INPLACE cannot work -- different memory model to julia
   sig=1
+  if !(eltype(mat)<:Integer) mat=Integer.(mat) end# for Rational or Cyc matrices
   #Embed nxm mat in a (n+2)x(m+2) larger "id" matrix
   n,m=size(mat).+(2,2)
   A=zeros(eltype(mat),n,m)
@@ -547,7 +548,7 @@ julia> hermite(m)
  0  0  3
 ```
 """
-function hermite(mat::AbstractMatrix{<:Integer})
+function hermite(mat::AbstractMatrix)
   NormalFormIntMat(mat;REDDIAG=true)[:normal]
 end
 
@@ -576,7 +577,7 @@ julia> n.rowtrans*m==n.normal
 true
 ```
 """
-function hermite_transforms(mat::AbstractMatrix{<:Integer})
+function hermite_transforms(mat::AbstractMatrix)
   res=NormalFormIntMat(mat;REDDIAG=true,ROWTRANS=true)
   (normal=res[:normal], rowtrans=res[:rowtrans], 
    rank=res[:rank], signdet=res[:signdet])
@@ -605,7 +606,7 @@ julia> col_hermite(m)
  0  1  3
 ```
 """
-function col_hermite(mat::AbstractMatrix{<:Integer})
+function col_hermite(mat::AbstractMatrix)
   permutedims(NormalFormIntMat(transpose(mat);REDDIAG=true)[:normal])
 end
 
@@ -634,7 +635,7 @@ julia> m*n.coltrans==n.normal
 true
 ```
 """
-function col_hermite_transforms(mat::AbstractMatrix{<:Integer})
+function col_hermite_transforms(mat::AbstractMatrix)
   res=NormalFormIntMat(transpose(mat);REDDIAG=true,ROWTRANS=true)
   (normal=permutedims(res[:normal]), coltrans=permutedims(res[:rowtrans]), 
    rank=res[:rank], signdet=res[:signdet])
@@ -661,7 +662,7 @@ julia> smith(m)
  0  0  3  0
 ```
 """
-smith(mat::AbstractMatrix{<:Integer})=NormalFormIntMat(mat,TRIANG=true)[:normal]
+smith(mat::AbstractMatrix)=NormalFormIntMat(mat,TRIANG=true)[:normal]
 
 """
 `smith_transforms(m::AbstractMatrix{<:Integer})`
@@ -686,7 +687,7 @@ julia> n.rowtrans*m*n.coltrans==n.normal
 true
 ```
 """
-function smith_transforms(mat::AbstractMatrix{<:Integer})
+function smith_transforms(mat::AbstractMatrix)
   res=NormalFormIntMat(mat;TRIANG=true,ROWTRANS=true,COLTRANS=true)
   (normal=res[:normal], coltrans=res[:coltrans], rowtrans=res[:rowtrans],
    rank=res[:rank], signdet=res[:signdet])
@@ -713,7 +714,7 @@ julia> baseInt(m)
  0  0  15
 ```
 """
-function baseInt(mat::Matrix{<:Integer})
+function baseInt(mat::AbstractMatrix)
   norm=NormalFormIntMat(mat;REDDIAG=true)
   norm[:normal][1:norm[:rank],:]
 end
@@ -738,7 +739,7 @@ julia> intersect_rowspaceInt(mat,nat)
  0  0  960
 ```
 """
-function intersect_rowspaceInt(M1::Matrix{<:Integer}, M2::Matrix{<:Integer})
+function intersect_rowspaceInt(M1::AbstractMatrix, M2::AbstractMatrix)
   M=vcat(M1, M2)
   r=TriangulizedIntegerMatTransform(M)
   T=r[:rowtrans][r[:rank]+1:size(M,1),axes(M1,1)]
@@ -776,7 +777,7 @@ julia> complementInt(n)
 (complement = [0 0 1], sub = [1 2 3; 0 3 6], moduli = [1, 3])
 ```
 """
-function complementInt(full::Matrix{<:Integer}, sub::Matrix{<:Integer})
+function complementInt(full::AbstractMatrix, sub::AbstractMatrix)
   F=baseInt(full)
   if isempty(sub) || iszero(sub) return (complement=F,sub=sub,moduli=Int[]) end
   S=intersect_rowspaceInt(F, sub)
@@ -790,7 +791,7 @@ function complementInt(full::Matrix{<:Integer}, sub::Matrix{<:Integer})
    moduli=map(i->r.normal[i,i],1:r.rank))
 end
 
-complementInt(sub::Matrix{<:Integer})=complementInt(one(zeros(eltype(sub),
+complementInt(sub::AbstractMatrix)=complementInt(one(zeros(eltype(sub),
    size(sub,2),size(sub,2))),sub)
 
 """
@@ -815,7 +816,7 @@ julia> MatInt.lnullspaceInt(m)
  0  24  -13  3  -7
 ```
 """
-function lnullspaceInt(mat)
+function lnullspaceInt(mat::AbstractMatric)
   norm=TriangulizedIntegerMatTransform(mat)
   baseInt(norm[:rowtrans][norm[:rank]+1:size(mat,1),:])
 end
@@ -844,7 +845,7 @@ julia> solutionmatInt(mat,[95,115,182])
      0
 ```
 """
-function solutionmatInt(mat, v)
+function solutionmatInt(mat::AbstractMatric, v)
   if iszero(mat)
     if iszero(v) return fill(0,size(mat,1))
     else return
@@ -872,7 +873,7 @@ julia> MatInt.SolutionNullspaceIntMat(mat,[95,115,182])
 ([2285, -5854, 4888, -1299, 0], [1 18 … 2 -6; 0 24 … 3 -7])
 ```
 """
-function SolutionNullspaceIntMat(mat, v)
+function SolutionNullspaceIntMat(mat::AbstractMatric, v)
   if iszero(mat)
     len=size(mat,1)
     if iszero(v) return [fill(0,max(0,len)), Matrix{Int}(I,len,len)]
@@ -892,7 +893,7 @@ function SolutionNullspaceIntMat(mat, v)
   (-transpose(t[1:r[:rank],:])*r[:rowtrans][end,1:r[:rank]], kern)
 end
 
-function DeterminantIntMat(mat)
+function DeterminantIntMat(mat::AbstractMatric)
   sig=1
   n=size(mat,1)+2
   if n<22 return LinearAlgebra.det_bareiss(mat) end
@@ -944,7 +945,7 @@ function DeterminantIntMat(mat)
   sig
 end
 
-function IntersectionLatticeSubspace(m)
+function IntersectionLatticeSubspace(m::AbstractMatric)
   m*=lcm(denominator.(vcat(m...)))
   r=smith_transforms(m)
   for i in 1:length(r[:normal])
@@ -991,7 +992,7 @@ julia> r.normal==mod.(r.rowtrans*[3 0;4 1],[10,5]')
 true
 ```
 """
-function diaconis_graham(m::Matrix{<:Integer}, moduli::Vector{<:Integer})
+function diaconis_graham(m::AbstractMatrix{<:Integer},moduli::Vector{<:Integer})
   if moduli==[] return (rowtrans=[],normal=m) end
   if any(i->moduli[i]%moduli[i+1]!=0,1:length(moduli)-1)
     error("moduli[i+1] should divide moduli[i] for all i")
