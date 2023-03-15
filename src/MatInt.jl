@@ -816,7 +816,7 @@ julia> MatInt.lnullspaceInt(m)
  0  24  -13  3  -7
 ```
 """
-function lnullspaceInt(mat::AbstractMatric)
+function lnullspaceInt(mat::AbstractMatrix)
   norm=TriangulizedIntegerMatTransform(mat)
   baseInt(norm[:rowtrans][norm[:rank]+1:size(mat,1),:])
 end
@@ -845,7 +845,7 @@ julia> solutionmatInt(mat,[95,115,182])
      0
 ```
 """
-function solutionmatInt(mat::AbstractMatric, v)
+function solutionmatInt(mat::AbstractMatrix, v)
   if iszero(mat)
     if iszero(v) return fill(0,size(mat,1))
     else return
@@ -873,7 +873,7 @@ julia> MatInt.SolutionNullspaceIntMat(mat,[95,115,182])
 ([2285, -5854, 4888, -1299, 0], [1 18 … 2 -6; 0 24 … 3 -7])
 ```
 """
-function SolutionNullspaceIntMat(mat::AbstractMatric, v)
+function SolutionNullspaceIntMat(mat::AbstractMatrix, v)
   if iszero(mat)
     len=size(mat,1)
     if iszero(v) return [fill(0,max(0,len)), Matrix{Int}(I,len,len)]
@@ -893,7 +893,7 @@ function SolutionNullspaceIntMat(mat::AbstractMatric, v)
   (-transpose(t[1:r[:rank],:])*r[:rowtrans][end,1:r[:rank]], kern)
 end
 
-function DeterminantIntMat(mat::AbstractMatric)
+function DeterminantIntMat(mat::AbstractMatrix)
   sig=1
   n=size(mat,1)+2
   if n<22 return LinearAlgebra.det_bareiss(mat) end
@@ -945,7 +945,7 @@ function DeterminantIntMat(mat::AbstractMatric)
   sig
 end
 
-function IntersectionLatticeSubspace(m::AbstractMatric)
+function IntersectionLatticeSubspace(m::AbstractMatrix)
   m*=lcm(denominator.(vcat(m...)))
   r=smith_transforms(m)
   for i in 1:length(r[:normal])
