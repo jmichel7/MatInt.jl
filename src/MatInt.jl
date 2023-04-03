@@ -993,8 +993,8 @@ true
 ```
 """
 function diaconis_graham(m::AbstractMatrix{<:Integer},moduli::Vector{<:Integer})
-  if moduli==[] return (rowtrans=[],normal=m) end
-  if any(i->moduli[i]%moduli[i+1]!=0,1:length(moduli)-1)
+  if isempty(moduli) return (rowtrans=fill(0,0,0),normal=m) end
+  if any(i->!iszero(moduli[i]%moduli[i+1]),1:length(moduli)-1)
     error("moduli[i+1] should divide moduli[i] for all i")
   end
   r=hermite_transforms(m)
