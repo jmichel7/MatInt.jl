@@ -161,7 +161,7 @@ function SNFofREF(R)
   if isnothing(r) r=length(piv)
   else
     r-=1
-    piv.=@view piv[1:r]
+    piv=piv[1:r]
   end
   append!(piv, setdiff(1:m, piv))
   T=zeros(eltype(R),n,m)
