@@ -9,9 +9,9 @@ Wainwright, F. Gähler and D. Holt; the code for `NormalFormIntMat` is still
 hard  to read  like the  original one.  The Diaconis-Graham  normal form is
 ported from `GAP3/Chevie`.
 
-The  best way to make sure  of the validity of the  results is to work with
-matrices of `SaferIntegers`, which error in case of overflow. Then redo the
-computation with a wider type in case of error.
+The best way to ensure the validity of the results is to work with matrices
+of  `SaferIntegers`, which error  on overflow. Then  repeat the computation
+with a wider type in case of an error.
 
 For  the API, look at the docstrings for `smith, smith_transforms, hermite,
 hermite_transforms,  col_hermite,  col_hermite_transforms, diaconis_graham,
@@ -528,11 +528,11 @@ TriangulizedIntegerMatTransform(mat)=NormalFormIntMat(mat;ROWTRANS=true)
 `hermite(m::AbstractMatrix{<:Integer})`
 
 returns  the row Hermite normal  form `H` of `m`,  an upper triangular form
-with the same integral rowspace. Further, in this form, if a *pivot* is the
-first  non-zero entry on a  row of `H`, the  quadrant below left a pivot is
-zero,  pivots are  positive and  entries above  a pivot are nonnegative and
-smaller  than the  pivot. There  exists a  (unique if  `m` is of full rank)
-unimodular matrix `r` such that `r*m==H`.
+with  the same  integral rowspace.  Furthermore, if  a *pivot* is the first
+non-zero  entry on a row of `H`, the  quadrant of `H` below and to the left
+of  a pivot is zero,  pivots are positive and  entries of `H` above a pivot
+are  nonnegative and less than the pivot.  There exists a (unique if `m` is
+of full rank) unimodular matrix `r` such that `r*m==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -556,12 +556,13 @@ end
 `hermite_transforms(m::AbstractMatrix{<:Integer})`
 
 The row Hermite normal form `H` of `m` is an upper triangular form with the
-same  integral rowspace. Further, in  this form, if a  *pivot* is the first
-non-zero  entry on a row  of `H`, the quadrant  below left a pivot is zero,
-pivots  are positive and entries above  a pivot are nonnegative and smaller
-than  the pivot. There exists a (unique  if `m` is of full rank) unimodular
-matrix  `r` such that `r*m==H`. The function `hermite_transforms` returns a
-named tuple with components `.normal=H` and `.rowtrans=r`.
+same  integral rowspace.  Furthermore, if  a *pivot*  is the first non-zero
+entry on a row of `H`, the quadrant of `H` below and to the left of a pivot
+is  zero,  pivots  are  positive  and  entries  of  `H`  above  a pivot are
+nonnegative  and less than the  pivot. There exists a  (unique if `m` is of
+full   rank)  unimodular  matrix  `r`  such  that  `r*m==H`.  The  function
+`hermite_transforms`  returns a named tuple with components `.normal=H` and
+`.rowtrans=r`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]

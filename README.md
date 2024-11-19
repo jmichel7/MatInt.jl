@@ -7,14 +7,14 @@ This  package  provides  the  Smith  and  Hermite normal forms for integral matr
 
 Most  of the  code is  ported from  `GAP4`, authored  by A.  Storjohann, R. Wainwright, F. Gähler and D. Holt; the code for `NormalFormIntMat` is still hard  to read  like the  original one.  The Diaconis-Graham  normal form is ported from `GAP3/Chevie`.
 
-The  best way to make sure  of the validity of the  results is to work with matrices of `SaferIntegers`, which error in case of overflow. Then redo the computation with a wider type in case of error.
+The best way to ensure the validity of the results is to work with matrices of  `SaferIntegers`, which error  on overflow. Then  repeat the computation with a wider type in case of an error.
 
 For  the API, look at the docstrings for `smith, smith_transforms, hermite, hermite_transforms,  col_hermite,  col_hermite_transforms, diaconis_graham, baseInt, complementInt, lnullspaceInt, solutionmatInt, intersect_rowspaceInt`. 
 
 We  recall  that  a  *unimodular*  matrix  means an integer matrix which is invertible and whose inverse is still an integer matrix.
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L1-L23' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L1-L23' class='documenter-source'>source</a><br>
 
 <a id='MatInt.hermite' href='#MatInt.hermite'>#</a>
 **`MatInt.hermite`** &mdash; *Function*.
@@ -23,7 +23,7 @@ We  recall  that  a  *unimodular*  matrix  means an integer matrix which is inve
 
 `hermite(m::AbstractMatrix{<:Integer})`
 
-returns  the row Hermite normal  form `H` of `m`,  a row equivalent integer upper triangular form. If a *pivot* is the first non-zero entry on a row of `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and entries  above a  pivot are  nonnegative and  smaller than the pivot. There exists a unique unimodular matrix `r` such that `r*m==H`.
+returns  the row Hermite normal  form `H` of `m`,  an upper triangular form with  the same  integral rowspace.  Furthermore, if  a *pivot* is the first non-zero  entry on a row of `H`, the  quadrant of `H` below and to the left of  a pivot is zero,  pivots are positive and  entries of `H` above a pivot are  nonnegative and less than the pivot.  There exists a (unique if `m` is of full rank) unimodular matrix `r` such that `r*m==H`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -40,7 +40,7 @@ julia> hermite(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L529-L551' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L527-L550' class='documenter-source'>source</a><br>
 
 <a id='MatInt.hermite_transforms' href='#MatInt.hermite_transforms'>#</a>
 **`MatInt.hermite_transforms`** &mdash; *Function*.
@@ -49,7 +49,7 @@ julia> hermite(m)
 
 `hermite_transforms(m::AbstractMatrix{<:Integer})`
 
-The  row Hermite  normal form  `H` of  the `m`  is a row equivalent integer upper triangular form. If a *pivot* is the first non-zero entry on a row of `H`,  the quadrant  below left  a pivot  is zero,  pivots are  positive and entries  above a  pivot are  nonnegative and  smaller than the pivot. There exists  a unique  unimodular matrix  `r` such  that `r*m==H`.  The function `hermite_transforms`  returns a named tuple with components `.normal=H` and `.rowtrans=r`.
+The row Hermite normal form `H` of `m` is an upper triangular form with the same  integral rowspace.  Furthermore, if  a *pivot*  is the first non-zero entry on a row of `H`, the quadrant of `H` below and to the left of a pivot is  zero,  pivots  are  positive  and  entries  of  `H`  above  a pivot are nonnegative  and less than the  pivot. There exists a  (unique if `m` is of full   rank)  unimodular  matrix  `r`  such  that  `r*m==H`.  The  function `hermite_transforms`  returns a named tuple with components `.normal=H` and `.rowtrans=r`.
 
 ```julia-repl
 julia> m=[1 15 28;4 5 6;7 8 9]
@@ -66,7 +66,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L556-L580' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L555-L580' class='documenter-source'>source</a><br>
 
 <a id='MatInt.col_hermite' href='#MatInt.col_hermite'>#</a>
 **`MatInt.col_hermite`** &mdash; *Function*.
@@ -92,7 +92,7 @@ julia> col_hermite(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L587-L609' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L587-L609' class='documenter-source'>source</a><br>
 
 <a id='MatInt.col_hermite_transforms' href='#MatInt.col_hermite_transforms'>#</a>
 **`MatInt.col_hermite_transforms`** &mdash; *Function*.
@@ -118,7 +118,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L614-L638' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L614-L638' class='documenter-source'>source</a><br>
 
 <a id='MatInt.smith' href='#MatInt.smith'>#</a>
 **`MatInt.smith`** &mdash; *Function*.
@@ -144,7 +144,7 @@ julia> smith(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L645-L665' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L645-L665' class='documenter-source'>source</a><br>
 
 <a id='MatInt.smith_transforms' href='#MatInt.smith_transforms'>#</a>
 **`MatInt.smith_transforms`** &mdash; *Function*.
@@ -170,7 +170,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L668-L690' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L668-L690' class='documenter-source'>source</a><br>
 
 <a id='MatInt.diaconis_graham' href='#MatInt.diaconis_graham'>#</a>
 **`MatInt.diaconis_graham`** &mdash; *Function*.
@@ -204,7 +204,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L957-L992' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L960-L995' class='documenter-source'>source</a><br>
 
 <a id='MatInt.baseInt' href='#MatInt.baseInt'>#</a>
 **`MatInt.baseInt`** &mdash; *Function*.
@@ -213,7 +213,7 @@ true
 
 `baseInt(m::Matrix{<:Integer})`
 
-returns a matrix whose rows forms a basis of the integral row space of `m`, i.e. of the set of integral linear combinations of the rows of `m`.
+returns  a matrix in  Hermite normal form  whose rows forms  a basis of the integral  row space of `m`, i.e. of the set of integral linear combinations of the rows of `m`.
 
 ```julia-repl
 julia> m=[1 2 7;4 5 6;10 11 19]
@@ -230,7 +230,7 @@ julia> baseInt(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L697-L716' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L697-L717' class='documenter-source'>source</a><br>
 
 <a id='MatInt.complementInt' href='#MatInt.complementInt'>#</a>
 **`MatInt.complementInt`** &mdash; *Function*.
@@ -260,7 +260,7 @@ julia> complementInt(n)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L750-L779' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L751-L780' class='documenter-source'>source</a><br>
 
 <a id='MatInt.lnullspaceInt' href='#MatInt.lnullspaceInt'>#</a>
 **`MatInt.lnullspaceInt`** &mdash; *Function*.
@@ -287,7 +287,7 @@ julia> MatInt.lnullspaceInt(m)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L797-L818' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L798-L819' class='documenter-source'>source</a><br>
 
 <a id='MatInt.intersect_rowspaceInt' href='#MatInt.intersect_rowspaceInt'>#</a>
 **`MatInt.intersect_rowspaceInt`** &mdash; *Function*.
@@ -313,7 +313,7 @@ julia> intersect_rowspaceInt(mat,nat)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L722-L741' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L723-L742' class='documenter-source'>source</a><br>
 
 <a id='MatInt.solutionmatInt' href='#MatInt.solutionmatInt'>#</a>
 **`MatInt.solutionmatInt`** &mdash; *Function*.
@@ -343,5 +343,5 @@ julia> solutionmatInt(mat,[95,115,182])
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/f7fd93c42b404cb5a8c4fc9ac242ea30920c8864/src/MatInt.jl#L824-L847' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/MatInt.jl/blob/8d37fc8df18927231f8d788c1deccb313742c3b4/src/MatInt.jl#L825-L848' class='documenter-source'>source</a><br>
 
