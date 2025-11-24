@@ -5,18 +5,27 @@ abelian  group,  and  a  few  functions to  work  with integral matrices as
 lattices.
 
 Most  of the  code is  ported from  `GAP4`, authored  by A.  Storjohann, R.
-Wainwright, F. Gähler and D. Holt; the code for `NormalFormIntMat` is still
-hard  to read  like the  original one.  The Diaconis-Graham  normal form is
-ported from `GAP3/Chevie`.
+Wainwright,  F. Gähler and D. Holt; the code for [`NormalFormIntMat`](@ref)
+is  still hard  to read  like the  original one. The Diaconis-Graham normal
+form is ported from `GAP3/Chevie`.
 
 The best way to ensure the validity of the results is to work with matrices
 of  `SaferIntegers`, which error  on overflow. Then  repeat the computation
 with a wider type in case of an error.
 
-For  the API, look at the docstrings for `smith, smith_transforms, hermite,
-hermite_transforms,  col_hermite,  col_hermite_transforms, diaconis_graham,
-baseInt, complementInt, lnullspaceInt, solutionmatInt,
-intersect_rowspaceInt`. 
+For  the API, look at
+[`smith`](@ref),
+[`smith_transforms`](@ref),
+[`hermite`](@ref),
+[`hermite_transforms`](@ref),
+[`col_hermite`](@ref),
+[`col_hermite_transforms`](@ref),
+[`diaconis_graham`](@ref),
+[`baseInt`](@ref),
+[`complementInt`](@ref),
+[`lnullspaceInt`](@ref),
+[`solutionmatInt`](@ref),
+[`intersect_rowspaceInt`](@ref).
 
 We  recall  that  a  *unimodular*  matrix  means an integer matrix which is
 invertible and whose inverse is still an integer matrix.
@@ -24,7 +33,7 @@ invertible and whose inverse is still an integer matrix.
 module MatInt
 
 export complementInt, lnullspaceInt, solutionmatInt, smith, smith_transforms,
-  hermite, hermite_transforms, col_hermite, col_hermite_transforms, 
+  hermite, hermite_transforms, col_hermite, col_hermite_transforms,
   diaconis_graham, baseInt, intersect_rowspaceInt
 
 using LinearAlgebra: LinearAlgebra, I, dot
@@ -214,39 +223,36 @@ function SNFofREF(R)
 end
 
 """
+`NormalFormIntMat(A;options)`
+
 general operation for computation of various Normal Forms.
 
 Options:
-  - TRIANG Triangular Form / Smith Normal Form.
-  - REDDIAG Reduce off diagonal entries.
-  - ROWTRANS Row Transformations.
-  - COLTRANS Col Transformations.
+  - `TRIANG=true`: Triangular form / Smith Normal form.
+  - `REDDIAG=true`: Reduce off diagonal entries.
+  - `ROWTRANS=true`: Row transformations.
+  - `COLTRANS=true`: Col transformations.
 
-Compute  a Triangular, Hermite or  Smith form of the  `n × m` integer input
-matrix `A`. Optionally, compute `n × n` and `m × m` unimodular transforming
-matrices `Q, P` which satisfy `Q A==H` or `Q A P==S`.
-
-Compute a Triangular, Hermite or Smith form of the n x m 
-integer input matrix A.  Optionally, compute n x n / m x m
-unimodular transforming matrices which satisfy Q C A==H 
-or  Q C A B P==S.
+Compute  a Triangular,  Hermite or  Smith form  of the  `nxm` integer input
+matrix  `A`.  Optionally,  compute  `nxn  /  mxm`  unimodular  transforming
+matrices `Q, P` which satisfy `Q C A==H` or `Q C A B P==S`.
 
 Triangular / Hermite :
 
-Let I be the min(r+1,n) x min(r+1,n) identity matrix with r=rank(A).
-Then Q and C can be written using a block decomposition as
+Let `I` be the `min(r+1,n)xmin(r+1,n)` identity matrix with `r=rank(A)`.
+Then `Q` and `C` can be written using a block decomposition as
 
-             [ Q1 |   ]  [ C1 | C2 ]
-             [----+---]  [----+----]  A== H.
-             [ Q2 | I ]  [    | I  ]
+``\\begin{pmatrix}Q1&.\\\\Q2&I\\end{pmatrix}
+  \\begin{pmatrix}C1&C2\\\\.&I\\end{pmatrix}A==H.``
 
 Smith :
 
-  [ Q1 |   ]  [ C1 | C2 ]     [ B1 |   ]  [ P1 | P2 ]
-  [----+---]  [----+----]  A  [----+---]  [----+----] ==S.
-  [ Q2 | I ]  [    | I  ]     [ B2 | I ]  [ *  | I  ]
+``\\begin{pmatrix}Q1&.\\\\Q2&I\\end{pmatrix}
+  \\begin{pmatrix}C1&C2\\\\.&I\\end{pmatrix}A
+  \\begin{pmatrix}B1&.\\\\B2&I\\end{pmatrix}
+  \\begin{pmatrix}P1&P2\\\\*&I\\end{pmatrix}==S``
 
- * - possible non-zero entry in upper right corner...
+ `*` - possible non-zero entry in upper right corner...
 
 The routines used are based on work by Arne Storjohann and were implemented
 in GAP4 by him and R.Wainwright.
@@ -291,7 +297,8 @@ julia> r[:rowtrans]*m*r[:coltrans]
  0  0  3
 ```
 """
-function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false, ROWTRANS=false, COLTRANS=false)
+function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
+                                               ROWTRANS=false, COLTRANS=false)
 # The gap code for INPLACE cannot work -- different memory model to julia
   sig=1
   if !(eltype(mat)<:Integer) mat=Integer.(mat) end# for Rational or Cyc matrices
@@ -481,7 +488,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false, ROWT
 end
 
 """
-`TriangulizedIntegerMat(mat)`
+`triangulizeInt(mat)`
 Changes  `mat` to be in  upper triangular form.
 
 ```julia-repl
@@ -491,14 +498,14 @@ julia> m=[1 15 28;4 5 6;7 8 9]
  4   5   6
  7   8   9
 
-julia> MatInt.TriangulizedIntegerMat(m)
+julia> MatInt.triangulizeInt(m)
 3×3 Matrix{Int64}:
  1  15  28
  0   1   1
  0   0   3
 ```
 """
-TriangulizedIntegerMat(mat)=NormalFormIntMat(mat;)[:normal]
+triangulizeInt(mat)=NormalFormIntMat(mat;)[:normal]
 
 """
 ```julia-repl
@@ -508,7 +515,7 @@ julia> m=[1 15 28;4 5 6;7 8 9]
  4   5   6
  7   8   9
 
-julia> n=MatInt.TriangulizedIntegerMatTransform(m)
+julia> n=MatInt.triangulizeInttransform(m)
 Dict{Symbol, Any} with 6 entries:
   :rowQ     => [1 0 0; 1 -30 17; -3 97 -55]
   :normal   => [1 15 28; 0 1 1; 0 0 3]
@@ -522,7 +529,7 @@ julia> n[:rowtrans]*m==n[:normal]
 true
 ```
 """
-TriangulizedIntegerMatTransform(mat)=NormalFormIntMat(mat;ROWTRANS=true)
+triangulizeInttransform(mat)=NormalFormIntMat(mat;ROWTRANS=true)
 
 """
 `hermite(m::AbstractMatrix{<:Integer})`
@@ -742,7 +749,7 @@ julia> intersect_rowspaceInt(mat,nat)
 """
 function intersect_rowspaceInt(M1::AbstractMatrix, M2::AbstractMatrix)
   M=vcat(M1, M2)
-  r=TriangulizedIntegerMatTransform(M)
+  r=triangulizeInttransform(M)
   T=r[:rowtrans][r[:rank]+1:size(M,1),axes(M1,1)]
   if !isempty(T) T*=M1 end
   baseInt(T)
@@ -784,7 +791,7 @@ function complementInt(full::AbstractMatrix, sub::AbstractMatrix)
   S=intersect_rowspaceInt(F, sub)
   if S!=baseInt(sub) error(sub," must be submodule of ",full) end
   M=vcat(F,S)
-  T=Integer.(inv(Rational.(TriangulizedIntegerMatTransform(M)[:rowtrans])))
+  T=Integer.(inv(Rational.(triangulizeInttransform(M)[:rowtrans])))
   T=T[size(F,1)+1:end,axes(F,1)]
   r=smith_transforms(T)
   M=Integer.(inv(Rational.(r.coltrans))*F)
@@ -818,7 +825,7 @@ julia> MatInt.lnullspaceInt(m)
 ```
 """
 function lnullspaceInt(mat::AbstractMatrix)
-  norm=TriangulizedIntegerMatTransform(mat)
+  norm=triangulizeInttransform(mat)
   baseInt(norm[:rowtrans][norm[:rank]+1:size(mat,1),:])
 end
 
@@ -852,9 +859,9 @@ function solutionmatInt(mat::AbstractMatrix, v)
     else return
     end
   end
-  norm=TriangulizedIntegerMatTransform(mat)
+  norm=triangulizeInttransform(mat)
   M=vcat(norm[:normal][1:norm[:rank],:], transpose(v))
-  r=TriangulizedIntegerMatTransform(M)
+  r=triangulizeInttransform(M)
   if r[:rank]==size(r[:normal],1) || r[:rowtrans][end,end]!=1
       return
   end
@@ -862,7 +869,7 @@ function solutionmatInt(mat::AbstractMatrix, v)
 end
     
 """
-`SolutionNullspaceIntMat(mat, v)`
+`solutionnullspaceInt(mat, v)`
 
 returns   a  Tuple  of   length  two,  with   first  entry  the  result  of
 `solutionmatInt(mat,v)`, and last entry the result of `lnullspaceInt(mat)`.
@@ -870,24 +877,24 @@ The calculation is performed faster than if two separate calls are used.
 
 ```julia_repl
 julia> mat=[1 2 7;4 5 6;7 8 9;10 11 19;5 7 12]
-julia> MatInt.SolutionNullspaceIntMat(mat,[95,115,182])
+julia> MatInt.solutionnullspaceInt(mat,[95,115,182])
 ([2285, -5854, 4888, -1299, 0], [1 18 … 2 -6; 0 24 … 3 -7])
 ```
 """
-function SolutionNullspaceIntMat(mat::AbstractMatrix, v)
+function solutionnullspaceInt(mat::AbstractMatrix, v)
   if iszero(mat)
     len=size(mat,1)
     if iszero(v) return [fill(0,max(0,len)), Matrix{Int}(I,len,len)]
     else return [false, Matrix{Int}(I,len,len)]
     end
   end
-  norm=TriangulizedIntegerMatTransform(mat)
+  norm=triangulizeInttransform(mat)
   kern=norm[:rowtrans][norm[:rank]+1:size(mat,1),:]
   kern=baseInt(kern)
   t=norm[:rowtrans]
   rs=norm[:normal][1:norm[:rank],:]
   M=vcat(rs, transpose(v))
-  r=TriangulizedIntegerMatTransform(M)
+  r=triangulizeInttransform(M)
   if r[:rank]==size(r[:normal],1) || r[:rowtrans][end,end]!=1
       return [false, kern]
   end

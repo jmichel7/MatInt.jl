@@ -12,4 +12,7 @@ complementInt
 lnullspaceInt
 intersect_rowspaceInt
 solutionmatInt
+MatInt.solutionnullspaceInt
+MatInt.prime_part
+MatInt.NormalFormIntMat
 ```
