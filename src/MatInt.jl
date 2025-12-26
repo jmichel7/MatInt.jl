@@ -355,7 +355,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
           for i in r:n
             if N!=1 N=gcd(N, A[i,c1]-div(A[i,c2],b)*widen(a)) end
           end
-          N=T(N)
+          if abs(N)<=typemax(T) N=T(N) end
         else
           c=mgcdex(N, A[r,j], @view A[r+1:n,j])
           b=A[r,j]+dot(c,@view A[r+1:n,j])
