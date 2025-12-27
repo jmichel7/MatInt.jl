@@ -803,7 +803,7 @@ complementInt(sub::AbstractMatrix)=complementInt(one(zeros(eltype(sub),
    size(sub,2),size(sub,2))),sub)
 
 """
-`lnullspaceInt(m::Matrix{<:Integer})
+`lnullspaceInt(m::Matrix{<:Integer})`
 
 returns a matrix whose rows form a basis of the integral lnullspace of `m`,
 that  is  of  elements  of  the  left  nullspace  of `m` that have integral
@@ -969,18 +969,13 @@ end
 
 returns the normal form defined for the set of generators defined by `m` of
 the  abelian group defined by `moduli`. in P. Diaconis and R. Graham., "The
-graph  of generating sets  of an abelian  group", Colloq. Math., 80:31--38,
-1999.
+graph  of generating sets  of an abelian  group", Colloq. Math., 80:31--38, 1999.
 
-`moduli`  should  have  positive  entries  such  that `moduli[i+1]` divides
-`moduli[i]` for all `i`, representing the abelian group
-`A=ℤ/moduli[1]×…×ℤ/moduli[n]`, where `n=length(moduli)`.
+  - `moduli`  should  have  positive  entries  such  that `moduli[i+1]` divides `moduli[i]` for all `i`, representing the abelian group `A=ℤ/moduli[1]×…×ℤ/moduli[n]`, where `n=length(moduli)`.
 
-`m`  should have `n` columns, and each  line, with the `i`-th element taken
-`mod  moduli[i]`, represents  an element  of `A`;  the set  of rows  of `m`
-should generate `A`.
+  - `m`  should have `n` columns, and each  line, with the `i`-th element taken `mod  moduli[i]`, represents  an element  of `A`;  the set  of rows  of `m` should generate `A`.
 
-The  function returns  'nothing' if  the rows  of `m`  do not generate `A`.
+The  function returns  `nothing` if  the rows  of `m`  do not generate `A`.
 Otherwise it returns a named tuple `r` with fields
 
 `r.normal`:  the Diaconis-Graham normal form, a matrix of same shape as `m`
