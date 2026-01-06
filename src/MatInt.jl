@@ -4,10 +4,10 @@ matrices,  the Diaconis-Graham  normal form  for sets  of generators  of an
 abelian  group,  and  a  few  functions to  work  with integral matrices as
 lattices.
 
-Most  of the  code is  ported from  `GAP4`, authored  by A.  Storjohann, R.
+The  Diaconis-Graham normal form is ported  from `GAP3/Chevie`. The rest of
+the  code is  ported from  `GAP4/matint.g`, authored  by A.  Storjohann, R.
 Wainwright,  F. Gähler and D. Holt; the code for [`NormalFormIntMat`](@ref)
-is  still hard  to read  like the  original one. The Diaconis-Graham normal
-form is ported from `GAP3/Chevie`.
+is still hard to read like the original one.
 
 The best way to ensure the validity of the results is to work with matrices
 of  `SaferIntegers`, which error  on overflow. Then  repeat the computation
@@ -78,12 +78,11 @@ end
 """
 `Gcdex(m,n)`
 
-`Gcdex`  returns a  named tuple  with fields  `gcd=gcd(m,n)` and `coeff`, a
+`Gcdex`  returns a named tuple with  fields `.gcd=gcd(m,n)` and `.coeff`, a
 unimodular 2x2 matrix such that `coeff*[m,n]=[gcd,0]`.
 
-If `m*n!=0`, `abs(coeff[1,1])≤abs(n)/(2*gcd)` and
-`abs(coeff[1,2])≤abs(m)/(2*gcd)`.   If  `m`  and  `n`  are  not  both  zero
-`coeff[2,1]` is `-n/gcd` and `coeff[2,2]` is `m/gcd`.
+If `m*n!=0`, `all(abs.(coeff[1,:])≤abs.([n,m])/gcd)`
+and `coeff[2,:]==[-n/gcd,m/gcd]`.
 
 ```julia-repl
 julia> MatInt.Gcdex(123,66)
@@ -96,18 +95,13 @@ julia> MatInt.Gcdex(0,0)
 ```
 """
 function Gcdex(m::Integer, n::Integer)
-  if 0<=m  f=m; fm=1
-  else f=-m; fm=-1 end
-  g=0<=n ? n : -n
+  if m>=0 f=m; fm=1
+  else   f=-m; fm=-1 end
+  g=abs(n)
   gm=0
   while g!=0
     q=div(f,g)
-    h=g
-    hm=gm
-    g=f-q*g
-    gm=fm-q*gm
-    f=h
-    fm=hm
+    f,fm,g,gm=g,gm,f-q*g,fm-q*gm
   end
   (gcd=f, coeff= n==0 ? [fm 0;gm 1] : [fm div(f-fm*m,n);gm div(-gm*m,n)])
 end
@@ -117,7 +111,7 @@ end
 
 `A` should be  a 2x2 matrix. Returns a `NamedTuple` with 2 fields
   - `.sign`  the sign of `det(A)`
-  - `.rowtrans` such that `rowtrans*A=[e f;0 g]`  (Hermite normal form)
+  - `.rowtrans` such that `rowtrans*A=hermite(A)`
 """
 function bezout(A::AbstractMatrix)
   e=Gcdex(A[1,1],A[2,1])
@@ -134,21 +128,20 @@ function bezout(A::AbstractMatrix)
 end
 
 """
-`mgcdex(N::Integer,a::Integer,v)`   returns  `M`  of  same  length  as  `v`
-(usually a tuple of integers) such that `gcd(N,a+sum(M.*v))==gcd(N,a,v...)`
+`mgcdex(N::Integer,a::Integer,v::Vector{<:Integer})`
+ returns `M` such that `gcd(N,a+sum(M.*v))==gcd(N,a,v...)`
 """
-function mgcdex(N::Integer, a::Integer, v)
-  l=length(v)
+function mgcdex(N::Integer, a::Integer, v::AbstractVector{<:Integer})
   h=N
-  M=Vector{eltype(v)}(undef,l)
-  for i in 1:l
+  M=Vector{eltype(v)}(undef,length(v))
+  for i in eachindex(v)
     g=h
     h=gcd(g, v[i])
     M[i]=div(g, h)
   end
   h=gcd(a,h)
   g=div(a,h)
-  for i in l:-1:1
+  for i in length(v):-1:1
     b=div(v[i], h)
     d=prime_part(M[i], b)
     if d==1 c=0
@@ -160,6 +153,22 @@ function mgcdex(N::Integer, a::Integer, v)
     M[i]=c
   end
   M
+end
+
+"""
+`mgcdex1(N::Integer,a::Integer,v::Integer)`  returns  `M`
+ such that `gcd(N,a+M*v)==gcd(N,a,v)`
+"""
+function mgcdex1(N::Integer, a::Integer, v::Integer)
+  h=gcd(N,v)
+  M=div(N,h)
+  h=gcd(a,h)
+  g=div(a,h)
+  b=div(v,h)
+  d=prime_part(M,b)
+  if d==1 return 0 end
+  u=g//b
+  rgcd(d, numerator(u)*invmod(denominator(u),d))
 end
 
 ## SNFofREF - fast SNF of REF matrix
@@ -187,7 +196,7 @@ function SNFofREF(R)
     end
     t=min(k, r)
     for i in t-1:-1:si
-      t=mgcdex(A[i], T[i,k], (T[i+1,k],))[1]
+      t=mgcdex1(A[i],T[i,k],T[i+1,k])
       if t!=0
         @views T[i,:].+=T[i+1,:].*t
         @views T[i,:].=mod.(T[i,:], A[i])
@@ -228,10 +237,10 @@ end
 general operation for computation of various Normal Forms.
 
 Options:
-  - `TRIANG=true`: Triangular form / Smith Normal form.
-  - `REDDIAG=true`: Reduce off diagonal entries.
-  - `ROWTRANS=true`: Row transformations.
-  - `COLTRANS=true`: Col transformations.
+  - `triang=true`: Triangular form / Smith Normal form.
+  - `reddiag=true`: Reduce off diagonal entries.
+  - `rowtrans=true`: Row transformations.
+  - `coltrans=true`: Col transformations.
 
 Compute  a Triangular,  Hermite or  Smith form  of the  `nxm` integer input
 matrix  `A`.  Optionally,  compute  `nxn  /  mxm`  unimodular  transforming
@@ -269,7 +278,7 @@ julia> m=[1 15 28;4 5 6;7 8 9]
  4   5   6
  7   8   9
 
-julia> MatInt.NormalFormIntMat(m,REDDIAG=true,ROWTRANS=true)
+julia> MatInt.NormalFormIntMat(m,reddiag=true,rowtrans=true)
 Dict{Symbol, Any} with 6 entries:
   :rowQ     => [-2 62 -35; 1 -30 17; -3 97 -55]
   :normal   => [1 0 1; 0 1 1; 0 0 3]
@@ -278,7 +287,7 @@ Dict{Symbol, Any} with 6 entries:
   :signdet  => 1
   :rowtrans => [-2 62 -35; 1 -30 17; -3 97 -55]
 
-julia> r=MatInt.NormalFormIntMat(m,TRIANG=true,ROWTRANS=true,COLTRANS=true)
+julia> r=MatInt.NormalFormIntMat(m,triang=true,rowtrans=true,coltrans=true)
 Dict{Symbol, Any} with 9 entries:
   :rowQ     => [-2 62 -35; 1 -30 17; -3 97 -55]
   :normal   => [1 0 0; 0 1 0; 0 0 3]
@@ -297,23 +306,19 @@ julia> r[:rowtrans]*m*r[:coltrans]
  0  0  3
 ```
 """
-function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
-                                               ROWTRANS=false, COLTRANS=false)
+function NormalFormIntMat(mat::AbstractMatrix; triang=false, reddiag=false,
+                                               rowtrans=false, coltrans=false)
 # The gap code for INPLACE cannot work -- different memory model to julia
   sig=1
   if !(eltype(mat)<:Integer) mat=Integer.(mat) end# for Rational or Cyc matrices
-  #Embed nxm mat in a (n+2)x(m+2) larger "id" matrix
-  n,m=size(mat).+(2,2)
-  A=zeros(eltype(mat),n,m)
-  A[2:end-1,2:end-1]=mat
-  A[1,1]=1
-  A[n,m]=1
-  if ROWTRANS
+  n,m=size(mat).+2 #Embed n×m mat in a (n+2)×(m+2) id matrix
+  A=zeros(eltype(mat),n,m);A[1,1]=A[n,m]=1;A[2:end-1,2:end-1]=mat
+  if rowtrans
     Q=zeros(eltype(mat),n,n)
     Q[1,1]=1
     C=one(Q)
   end
-  if TRIANG && COLTRANS
+  if triang && coltrans
     B=one(zeros(eltype(mat),m,m))
     P=copy(B)
   end
@@ -324,7 +329,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
     c1=c2
     push!(rp,c1)
     r+=1
-    if ROWTRANS Q[r+1,r+1]=1 end
+    if rowtrans Q[r+1,r+1]=1 end
     j=c1+1
     k=0
     while j<=m
@@ -336,8 +341,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
       end
       j+=1
     end
-    #Smith with some transforms..
-    if TRIANG && ((COLTRANS || ROWTRANS) && c2<m)
+    if triang && ((coltrans || rowtrans) && c2<m) #Smith with some transforms..
       N=gcd(@view A[r:n,c2])
       for j in Iterators.flatten((c1+1:c2-1,c2+1:m-1,c2))
         if j==c2
@@ -361,19 +365,19 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
           b=A[r,j]+dot(c,@view A[r+1:n,j])
           a=A[r,c1]+dot(c,@view A[r+1:n,c1])
         end
-        t=mgcdex(N, a, (b,))[1]
+        t=mgcdex1(N,a,b)
         tmp=A[r,c1]+t*A[r,j]
         if tmp==0 || tmp*A[k,c2]==(A[k,c1]+t*A[k,j])*A[r,c2]
-          t+=1+mgcdex(N, a+t*b+b,(b,))[1]
+          t+=1+mgcdex1(N,a+t*b+b,b)
         end
         if t>0
         @views  A[:,c1].+=t*A[:,j]
-          if COLTRANS B[j,c1]+=t end
+          if coltrans B[j,c1]+=t end
         end
       end
       if A[r,c1]*A[k,c1+1]==A[k,c1]*A[r,c1+1]
         @views A[:,c1+1].+=A[:,c2]
-        if COLTRANS B[c2,c1+1]=1 end
+        if coltrans B[c2,c1+1]=1 end
       end
       c2=c1+1
     end
@@ -381,7 +385,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
     for i in r+2:n
       if c[i-r-1]!=0
         @views A[r+1,:].+=c[i-r-1].*A[i,:]
-        if ROWTRANS
+        if rowtrans
           C[r+1,i]=c[i-r-1]
           @views Q[r+1,:].+=c[i-r-1].*Q[i,:]
         end
@@ -390,9 +394,9 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
     i=r+1
     while A[r,c1]*A[i,c2]==A[i,c1]*A[r,c2] i+=1 end
     if i>r+1
-      c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], (A[i,c1],))[1]+1
+      c=mgcdex1(abs(A[r,c1]), A[r+1,c1]+A[i,c1],A[i,c1])+1
       @views A[r+1,:].+=c.*A[i,:]
-      if ROWTRANS
+      if rowtrans
         C[r+1,i]+=c
         @views Q[r+1,:].+=c.*Q[i,:]
       end
@@ -400,44 +404,41 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
     g=bezout(@view A[r:r+1,[c1,c2]])
     sig*=g.sign
     @views A[r:r+1,:].=g.rowtrans*A[r:r+1,:]
-    if ROWTRANS @views Q[r:r+1,:].=g.rowtrans*Q[r:r+1,:] end
+    if rowtrans @views Q[r:r+1,:].=g.rowtrans*Q[r:r+1,:] end
     for i in r+2:n
       q=div(A[i,c1], A[r,c1])
       @views A[i,:].-=q.*A[r,:]
-      if ROWTRANS @views Q[i,:].-=q.*Q[r,:] end
+      if rowtrans @views Q[i,:].-=q.*Q[r,:] end
       q=div(A[i,c2], A[r+1,c2])
       @views A[i,:].-=q.*A[r+1,:]
-      if ROWTRANS @views Q[i,:].-=q.*Q[r+1,:] end
+      if rowtrans @views Q[i,:].-=q.*Q[r+1,:] end
     end
   end
   push!(rp,m) # length(rp)==r+1
   if n==m && r+1<n sig=0 end
-  #smith w/ NO transforms - farm the work out...
-  if TRIANG && !(ROWTRANS || COLTRANS)
+  if triang && !(rowtrans || coltrans) #smith w NO transforms - farm to SNFofREF
     A=@view A[2:end-1,2:end-1]
-    R=Dict(:normal => SNFofREF(A), :rank=>r-1)
+    R=Dict(:normal=>SNFofREF(A), :rank=>r-1)
     if n==m R[:signdet]=sig end
     return R
   end
-  # hermite or (smith w/ column transforms)
-  if (!TRIANG && REDDIAG) || (TRIANG && COLTRANS)
+  if (!triang && reddiag) || (triang && coltrans) # hermite or smith w coltrans
     for i in r:-1:1
       for j in i+1:r+1
         q=div(A[i,rp[j]]-mod(A[i,rp[j]], A[j,rp[j]]), A[j,rp[j]])
         @views A[i,:].-=q.*A[j,:]
-        if ROWTRANS @views Q[i,:].-=q.*Q[j,:] end
+        if rowtrans @views Q[i,:].-=q.*Q[j,:] end
       end
-      if TRIANG && i<r
+      if triang && i<r
         for j in i+1:m
           q=div(A[i,j], A[i,i])
           @views A[1:i,j].-=q.*A[1:i,i]
-          if COLTRANS P[i,j]=-q end
+          if coltrans P[i,j]=-q end
         end
       end
     end
   end
-  #Smith w/ row but not col transforms
-  if TRIANG && ROWTRANS && !COLTRANS
+  if triang && rowtrans && !coltrans #Smith w rowtrans but not coltrans
     for i in 1:r-1
       t=A[i,i]
       A[i,:].=0
@@ -448,8 +449,7 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
       A[r,j]=0
     end
   end
-  #smith w/ col transforms
-  if TRIANG && COLTRANS && r<m-1
+  if triang && coltrans && r<m-1 #smith w coltrans
     c=mgcdex(A[r,r], A[r,r+1], @view A[r,r+2:m-1])
     for j in r+2:m-1
       A[r,r+1]+=c[j-r-1]*A[r,j]
@@ -470,16 +470,15 @@ function NormalFormIntMat(mat::AbstractMatrix; TRIANG=false, REDDIAG=false,
     P[r+2:m-1,:].=0
     for i in r+2:m-1 P[i,i]=1 end
   end
-  #row transforms finisher
-  if ROWTRANS for i in r+2:n Q[i,i]=1 end end
-  R=Dict{Symbol,Any}(:normal => A[2:end-1,2:end-1],
-                     :rank => r-1,:signdet=>n==m ? sig : nothing)
-  if ROWTRANS
+  if rowtrans for i in r+2:n Q[i,i]=1 end end #rowtrans finisher
+  R=Dict{Symbol,Any}(:normal=>A[2:end-1,2:end-1], :rank=>r-1,
+                     :signdet=>n==m ? sig : nothing)
+  if rowtrans
     R[:rowC]=C[2:end-1,2:end-1]
     R[:rowQ]=Q[2:end-1,2:end-1]
     R[:rowtrans]=R[:rowQ]*R[:rowC]
   end
-  if TRIANG && COLTRANS
+  if triang && coltrans
     R[:colC]=B[2:end-1,2:end-1]
     R[:colQ]=P[2:end-1,2:end-1]
     R[:coltrans]=R[:colC]*R[:colQ]
@@ -529,7 +528,7 @@ julia> n[:rowtrans]*m==n[:normal]
 true
 ```
 """
-triangulizeInttransform(mat)=NormalFormIntMat(mat;ROWTRANS=true)
+triangulizeInttransform(mat)=NormalFormIntMat(mat;rowtrans=true)
 
 """
 `hermite(m::AbstractMatrix{<:Integer})`
@@ -555,9 +554,7 @@ julia> hermite(m)
  0  0  3
 ```
 """
-function hermite(mat::AbstractMatrix)
-  NormalFormIntMat(mat;REDDIAG=true)[:normal]
-end
+hermite(mat::AbstractMatrix)=NormalFormIntMat(mat;reddiag=true)[:normal]
 
 """
 `hermite_transforms(m::AbstractMatrix{<:Integer})`
@@ -586,7 +583,7 @@ true
 ```
 """
 function hermite_transforms(mat::AbstractMatrix)
-  res=NormalFormIntMat(mat;REDDIAG=true,ROWTRANS=true)
+  res=NormalFormIntMat(mat;reddiag=true,rowtrans=true)
   (normal=res[:normal], rowtrans=res[:rowtrans], 
    rank=res[:rank], signdet=res[:signdet])
 end
@@ -615,7 +612,7 @@ julia> col_hermite(m)
 ```
 """
 function col_hermite(mat::AbstractMatrix)
-  permutedims(NormalFormIntMat(transpose(mat);REDDIAG=true)[:normal])
+  permutedims(NormalFormIntMat(transpose(mat);reddiag=true)[:normal])
 end
 
 """
@@ -644,7 +641,7 @@ true
 ```
 """
 function col_hermite_transforms(mat::AbstractMatrix)
-  res=NormalFormIntMat(transpose(mat);REDDIAG=true,ROWTRANS=true)
+  res=NormalFormIntMat(transpose(mat);reddiag=true,rowtrans=true)
   (normal=permutedims(res[:normal]), coltrans=permutedims(res[:rowtrans]), 
    rank=res[:rank], signdet=res[:signdet])
 end
@@ -653,8 +650,8 @@ end
 `smith(m::AbstractMatrix{<:Integer})`
 
 computes  the Smith normal form  `S` of `m`, the  unique equivalent (in the
-sense  that  there  exist  unimodular  integer  matrices  `r,  c` such that
-`r*m*c==S`) diagonal matrix such that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for `i≤j`.
+sense  that there  exist unimodular  matrices `r,  c` such that `r*m*c==S`)
+diagonal matrix such that `S[i,i]` divides `S[j,j]` for `i≤j`.
 
 ```julia-repl
 julia> m=[1 15 28 7;4 5 6 7;7 8 9 7]
@@ -670,16 +667,16 @@ julia> smith(m)
  0  0  3  0
 ```
 """
-smith(mat::AbstractMatrix)=NormalFormIntMat(mat,TRIANG=true)[:normal]
+smith(mat::AbstractMatrix)=NormalFormIntMat(mat,triang=true)[:normal]
 
 """
 `smith_transforms(m::AbstractMatrix{<:Integer})`
 
-The  Smith normal form of `m` is  the unique equivalent diagonal matrix `S`
-such  that `Sᵢ,ᵢ` divides `Sⱼ,ⱼ` for  `i≤j`. There exist unimodular integer
-matrices  `c,  r`  such  that  `r*m*c==S`.  The function `smith_transforms`
-returns  a  named  tuple  with  components  `.normal=S`,  `.rowtrans=r` and
-`.coltrans=c`.
+The  Smith normal form of  `m` is the unique  equivalent (in the sense that
+there  exist  unimodular  matrices  `r,  c`  such that `r*m*c==S`) diagonal
+matrix  `S` such  that `S[i,i]`  divides `S[j,j]`  for `i≤j`.  The function
+`smith_transforms`  returns  a  named  tuple  with  components `.normal=S`,
+`.rowtrans=r` and `.coltrans=c`.
 
 ```julia-repl
 julia> m=[1 15 28 7;4 5 6 7;7 8 9 7]
@@ -696,7 +693,7 @@ true
 ```
 """
 function smith_transforms(mat::AbstractMatrix)
-  res=NormalFormIntMat(mat;TRIANG=true,ROWTRANS=true,COLTRANS=true)
+  res=NormalFormIntMat(mat;triang=true,rowtrans=true,coltrans=true)
   (normal=res[:normal], coltrans=res[:coltrans], rowtrans=res[:rowtrans],
    rank=res[:rank], signdet=res[:signdet])
 end
@@ -723,7 +720,7 @@ julia> baseInt(m)
 ```
 """
 function baseInt(mat::AbstractMatrix)
-  norm=NormalFormIntMat(mat;REDDIAG=true)
+  norm=NormalFormIntMat(mat;reddiag=true)
   norm[:normal][1:norm[:rank],:]
 end
 
@@ -935,7 +932,7 @@ function DeterminantIntMat(mat::AbstractMatrix)
     i=r+1
     while A[r,c1]*A[i,c2]==A[i,c1]*A[r,c2] i+=1 end
     if i>r+1
-      c=mgcdex(abs(A[r,c1]), A[r+1,c1]+A[i,c1], (A[i,c1],))[1]+1
+      c=mgcdex1(abs(A[r,c1]), A[r+1,c1]+A[i,c1],A[i,c1])+1
       @views A[r+1,:]+=A[i,:].* c
     end
     g=bezout(@view A[r:r+1,[c1,c2]])
