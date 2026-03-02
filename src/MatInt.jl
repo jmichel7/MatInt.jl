@@ -36,7 +36,7 @@ export complementInt, lnullspaceInt, solutionmatInt, smith, smith_transforms,
   hermite, hermite_transforms, col_hermite, col_hermite_transforms,
   diaconis_graham, baseInt, intersect_rowspaceInt
 
-using LinearAlgebra: LinearAlgebra, I, dot
+using LinearAlgebra: dot, I, LinearAlgebra
 
 "`prime_part(N,a)`  largest factor of `N` prime to `a`"
 function prime_part(N, a)
@@ -319,7 +319,7 @@ function NormalFormIntMat(mat::AbstractMatrix; triang=false, reddiag=false,
     C=one(Q)
   end
   if triang && coltrans
-    B=one(zeros(eltype(mat),m,m))
+    B=Matrix{eltype(mat)}(I,m,m)
     P=copy(B)
   end
   r=0
