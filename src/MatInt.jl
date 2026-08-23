@@ -10,8 +10,8 @@ Wainwright,  F. Gähler and D. Holt; the code for [`NormalFormIntMat`](@ref)
 is still hard to read like the original one.
 
 The best way to ensure the validity of the results is to work with matrices
-of  `SaferIntegers`, which error  on overflow. Then  repeat the computation
-with a wider type in case of an error.
+of  `SafeInt` from  the package  `SaferIntegers`, which  error on overflow.
+Then repeat the computation with a wider type in case of an error.
 
 For  the API, look at
 [`smith`](@ref),
@@ -181,7 +181,7 @@ function SNFofREF(R)
     r-=1
     piv=piv[1:r]
   end
-  append!(piv, setdiff(1:m, piv))
+  piv=vcat(piv, setdiff(1:m, piv))
   T=zeros(eltype(R),n,m)
   for j in 1:m
     for i in 1:min(r,j) T[i,j]=R[i,piv[j]] end
